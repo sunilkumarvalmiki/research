@@ -1,0 +1,100 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Python: Run Current File",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "${file}"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Ollama: Test Model",
+            "type": "shell",
+            "command": "ollama",
+            "args": [
+                "run",
+                "deepseek-coder-v2",
+                "Test connection"
+            ],
+            "group": "test"
+        },
+        {
+            "label": "Docker: Start ChromaDB",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "run",
+                "-d",
+                "--name",
+                "chromadb",
+                "-p",
+                "8000:8000",
+                "-v",
+                "/Volumes/Sunil Kumar 1/docker-volumes/chroma:/chroma/chroma",
+                "chromadb/chroma:latest"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Docker: Start Weaviate",
+            "type": "shell",
+            "command": "docker",
+            "args": [
+                "run",
+                "-d",
+                "--name",
+                "weaviate",
+                "-p",
+                "8080:8080",
+                "-e",
+                "QUERY_DEFAULTS_LIMIT=25",
+                "-e",
+                "AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true",
+                "-e",
+                "PERSISTENCE_DATA_PATH=/var/lib/weaviate",
+                "-v",
+                "/Volumes/Sunil Kumar 1/docker-volumes/weaviate:/var/lib/weaviate",
+                "semitechnologies/weaviate:latest"
+            ],
+            "group": "build"
+        },
+        {
+            "label": "Git: Daily Sync",
+            "type": "shell",
+            "command": "./scripts/daily-sync.sh",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Git: Daily Check",
+            "type": "shell",
+            "command": "./scripts/daily-check.sh",
+            "group": "test",
+            "problemMatcher": []
+        },
+        {
+            "label": "Test: Run Pytest",
+            "type": "shell",
+            "command": "${config:python.defaultInterpreterPath}",
+            "args": [
+                "-m",
+                "pytest",
+                "tests/",
+                "-v"
+            ],
+            "group": "test",
+            "problemMatcher": []
+        }
+    ]
+}

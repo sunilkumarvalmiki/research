@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # ChromaDB - Vector Database
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - /Volumes/Sunil Kumar 1/docker-volumes/chroma:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+    restart: unless-stopped
+    networks:
+      - ai-network
+
+  # Weaviate - Vector Database
+  weaviate:
+    image: semitechnologies/weaviate:latest
+    container_name: weaviate
+    ports:
+      - "8080:8080"
+    volumes:
+      - /Volumes/Sunil Kumar 1/docker-volumes/weaviate:/var/lib/weaviate
+    environment:
+      - QUERY_DEFAULTS_LIMIT=25
+      - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true
+      - PERSISTENCE_DATA_PATH=/var/lib/weaviate
+      - DEFAULT_VECTORIZER_MODULE=none
+      - CLUSTER_HOSTNAME=node1
+    restart: unless-stopped
+    networks:
+      - ai-network
+
+  # Portainer - Docker Management UI
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /Volumes/Sunil Kumar 1/docker-volumes/portainer:/data
+    restart: unless-stopped
+    networks:
+      - ai-network
+
+  # Theia IDE - Browser-based IDE
+  theia:
+    image: theiaide/theia:latest
+    container_name: theia-ide
+    ports:
+      - "3000:3000"
+    volumes:
+      - /Users/sunilkumar/workspace:/home/project:cached
+      - /Volumes/Sunil Kumar 1/docker-volumes/theia:/home/theia
+    environment:
+      - THEIA_WEBVIEW_EXTERNAL_ENDPOINT={{hostname}}
+    restart: unless-stopped
+    networks:
+      - ai-network
+
+  # Jupyter Lab - Data Science Environment
+  jupyter:
+    image: jupyter/datascience-notebook:latest
+    container_name: jupyter-lab
+    ports:
+      - "8888:8888"
+    volumes:
+      - /Users/sunilkumar/workspace:/home/jovyan/work
+      - /Volumes/Sunil Kumar 1/docker-volumes/jupyter:/home/jovyan/.jupyter
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    restart: unless-stopped
+    networks:
+      - ai-network
+
+networks:
+  ai-network:
+    driver: bridge
