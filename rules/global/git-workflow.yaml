@@ -155,9 +155,10 @@ git_workflow:
     # Commit frequency
     frequency:
       guideline: "Small, focused commits"
-      - "One logical change per commit"
-      - "Commit when tests pass"
-      - "Commit before context switch"
+      best_practices:
+        - "One logical change per commit"
+        - "Commit when tests pass"
+        - "Commit before context switch"
 
   # Pull request (PR) workflow
   pull_requests:

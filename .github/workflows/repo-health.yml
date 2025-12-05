@@ -1,0 +1,102 @@
+name: Repository Health Check
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check README
+        id: readme
+        run: |
+          if [ -f "README.md" ]; then
+            word_count=$(wc -w < README.md)
+            if [ $word_count -gt 100 ]; then
+              echo "status=✅ README exists and is comprehensive ($word_count words)" >> $GITHUB_OUTPUT
+            else
+              echo "status=⚠️ README is too short ($word_count words)" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "status=❌ README missing" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Check LICENSE
+        id: license
+        run: |
+          if [ -f "LICENSE" ] || [ -f "LICENSE.md" ] || [ -f "LICENSE.txt" ]; then
+            echo "status=✅ LICENSE exists" >> $GITHUB_OUTPUT
+          else
+            echo "status=❌ LICENSE missing" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Check CI
+        id: ci
+        run: |
+          if [ -f ".github/workflows/ci.yml" ] || [ -f ".github/workflows/test.yml" ]; then
+            echo "status=✅ CI configured" >> $GITHUB_OUTPUT
+          else
+            echo "status=⚠️ No CI found" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Check .gitignore
+        id: gitignore
+        run: |
+          if [ -f ".gitignore" ]; then
+            echo "status=✅ .gitignore exists" >> $GITHUB_OUTPUT
+          else
+            echo "status=⚠️ .gitignore missing" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Check Issue Templates
+        id: templates
+        run: |
+          if [ -d ".github/ISSUE_TEMPLATE" ]; then
+            count=$(ls -1 .github/ISSUE_TEMPLATE | wc -l)
+            echo "status=✅ $count issue template(s) found" >> $GITHUB_OUTPUT
+          else
+            echo "status=⚠️ No issue templates" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create Health Report
+        run: |
+          cat << 'EOF' > health-report.md
+          # Repository Health Report
+          
+          Generated: $(date)
+          
+          ## Status
+          
+          - README: ${{ steps.readme.outputs.status }}
+          - LICENSE: ${{ steps.license.outputs.status }}
+          - CI/CD: ${{ steps.ci.outputs.status }}
+          - .gitignore: ${{ steps.gitignore.outputs.status }}
+          - Issue Templates: ${{ steps.templates.outputs.status }}
+          
+          ## Recommendations
+          
+          Based on the health check, consider:
+          - Adding missing files (see ❌ items above)
+          - Improving files with warnings (see ⚠️ items)
+          - Refer to [Repository Health Guide](../profile-analysis/README.md)
+          EOF
+          
+          cat health-report.md
+      
+      - name: Create Issue if Problems Found
+        if: contains(steps.readme.outputs.status, '❌') || contains(steps.license.outputs.status, '❌')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Repository Health Check: Issues Found',
+              body: require('fs').readFileSync('health-report.md', 'utf8'),
+              labels: ['repository-health', 'maintenance']
+            });

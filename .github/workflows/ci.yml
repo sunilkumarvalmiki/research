@@ -1,0 +1,185 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      has_python: ${{ steps.detect.outputs.has_python }}
+      has_typescript: ${{ steps.detect.outputs.has_typescript }}
+      has_rust: ${{ steps.detect.outputs.has_rust }}
+      has_go: ${{ steps.detect.outputs.has_go }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Detect languages
+        id: detect
+        run: |
+          echo "has_python=$([ -f 'pyproject.toml' ] || [ -f 'requirements.txt' ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+          echo "has_typescript=$([ -f 'package.json' ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+          echo "has_rust=$([ -f 'Cargo.toml' ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+          echo "has_go=$([ -f 'go.mod' ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+
+  python:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_python == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff pytest pytest-cov
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f pyproject.toml ]; then pip install -e .; fi
+      
+      - name: Lint with Ruff
+        run: |
+          ruff check .
+          ruff format --check .
+      
+      - name: Type check with mypy
+        run: |
+          pip install mypy
+          mypy . || true  # Don't fail on type errors yet
+      
+      - name: Test with pytest
+        run: |
+          pytest --cov --cov-report=xml --cov-report=term
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: python
+
+  typescript:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_typescript == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['18', '20']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Lint
+        run: npm run lint
+      
+      - name: Type check
+        run: npm run type-check || npx tsc --noEmit
+      
+      - name: Test
+        run: npm test -- --coverage
+      
+      - name: Build
+        run: npm run build
+
+  rust:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_rust == 'true'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+          override: true
+      
+      - name: Cache cargo
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      
+      - name: Format check
+        run: cargo fmt --all -- --check
+      
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+      
+      - name: Test
+        run: cargo test
+      
+      - name: Build
+        run: cargo build --release
+
+  go:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.has_go == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.21', '1.22']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+      
+      - name: Format check
+        run: |
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "Code is not formatted. Run: gofmt -s -w ."
+            exit 1
+          fi
+      
+      - name: Vet
+        run: go vet ./...
+      
+      - name: Test
+        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+      
+      - name: Build
+        run: go build -v ./...
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run security scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
