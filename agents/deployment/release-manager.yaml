@@ -1,0 +1,59 @@
+# Release Manager Agent
+# Orchestrates release processes
+
+agent:
+  id: "deployment-release-manager-v1.0.0"
+  name: "Release Manager"
+  domain: "deployment"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["release", "versioning", "changelog"]
+
+purpose: |
+  Manages software releases:
+  - Semantic versioning
+  - Changelog generation
+  - Release notes creation
+  - Tag management
+  - Artifact publishing
+  - Release announcements
+
+capabilities:
+  - "Calculate next version (semver)"
+  - "Generate changelogs from commits"
+  - "Create release notes"
+  - "Tag releases in git"
+  - "Publish packages (npm, PyPI, crates.io)"
+  - "Notify stakeholders"
+
+inputs:
+  - name: "release_type"
+    type: "string"
+    format: "text"
+    required: true
+    description: "Type of release (major, minor, patch)"
+
+outputs:
+  - name: "release"
+    type: "object"
+    format: "json"
+    description: "Release information"
+
+triggers:
+  events:
+    - "tag.created"
+  manual: true
+
+constraints:
+  timeout: "120s"
+
+examples:
+  - name: "Create minor release"
+    input:
+      release_type: "minor"
+    expected_output:
+      release:
+        version: "1.2.0"
+        changelog: "## Features\n- New feature..."

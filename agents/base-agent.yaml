@@ -1,0 +1,250 @@
+# Base Agent Specification - All agents extend this template
+# Version: 1.0.0
+
+agent:
+  # Unique identifier: {domain}-{name}-v{version}
+  id: "{domain}-{name}-v{version}"
+  
+  # Human-readable name
+  name: "Human Readable Agent Name"
+  
+  # Agent domain classification
+  domain: "ideation|planning|development|deployment|operations|github"
+  
+  # Semantic version
+  version: "1.0.0"
+  
+  # Optional: Agent metadata
+  metadata:
+    author: "Agent Creator"
+    created: "2024-12-05"
+    updated: "2024-12-05"
+    tags: ["tag1", "tag2"]
+
+# Clear description of what this agent does
+purpose: |
+  A clear, concise description of the agent's purpose and responsibility.
+  This should explain:
+  - What problem the agent solves
+  - When to use this agent
+  - What value it provides
+
+# List of agent capabilities
+capabilities:
+  - "Capability 1: Description of what the agent can do"
+  - "Capability 2: Another capability"
+  - "Capability 3: Yet another capability"
+
+# Input specifications
+inputs:
+  - name: "input_name"
+    type: "string|object|array|file"
+    format: "json|yaml|markdown|text"
+    required: true
+    description: "Detailed description of the input"
+    schema:
+      # Optional JSON Schema for validation
+      type: "object"
+      properties:
+        field1:
+          type: "string"
+    examples:
+      - "Example input value"
+
+  - name: "optional_input"
+    type: "string"
+    format: "text"
+    required: false
+    default: "default_value"
+    description: "Optional input with default value"
+
+# Output specifications
+outputs:
+  - name: "output_name"
+    type: "object|array|string|file"
+    format: "json|yaml|markdown"
+    description: "Detailed description of the output"
+    schema:
+      # Optional JSON Schema
+      type: "object"
+      properties:
+        result:
+          type: "string"
+    examples:
+      - result: "Example output"
+
+  - name: "metadata"
+    type: "object"
+    format: "json"
+    description: "Execution metadata"
+    schema:
+      type: "object"
+      properties:
+        duration_ms:
+          type: "number"
+        timestamp:
+          type: "string"
+        status:
+          type: "string"
+          enum: ["success", "failure", "partial"]
+
+# Trigger configurations
+triggers:
+  # Event-based triggers
+  events:
+    - "event.name"
+    - "another.event"
+  
+  # Event filters
+  filters:
+    labels: ["label1", "label2"]
+    conditions:
+      - field: "state"
+        operator: "eq"
+        value: "open"
+  
+  # Scheduled triggers (cron format)
+  schedule:
+    cron: "0 0 * * *"  # Daily at midnight
+    timezone: "UTC"
+  
+  # Manual invocation
+  manual: true
+
+# Dependencies on other agents and tools
+dependencies:
+  # Other agents required
+  agents:
+    - id: "domain-agent-v1.0.0"
+      optional: false
+  
+  # MCP tools required
+  tools:
+    - name: "github"
+      operations:
+        - "create_issue"
+        - "get_file_contents"
+    
+    - name: "filesystem"
+      operations:
+        - "read_file"
+        - "write_file"
+
+# Execution constraints
+constraints:
+  # Maximum execution time
+  timeout: "60s"
+  
+  # Maximum retry attempts on failure
+  max_retries: 3
+  
+  # Retry strategy
+  retry_strategy:
+    type: "exponential_backoff"
+    initial_delay: "1s"
+    max_delay: "30s"
+  
+  # Resource limits
+  resources:
+    memory_mb: 512
+    cpu_cores: 1
+  
+  # Rate limiting
+  rate_limit:
+    max_requests_per_minute: 60
+
+# Error handling
+error_handling:
+  # On failure behavior
+  on_failure:
+    action: "notify"  # notify|retry|abort|fallback
+    notify_channels: ["email", "slack"]
+  
+  # Fallback agent (if any)
+  fallback:
+    agent_id: "domain-fallback-agent-v1.0.0"
+
+# Configuration options
+configuration:
+  # Agent-specific settings
+  settings:
+    setting_name: "default_value"
+  
+  # User preference overrides
+  user_preferences:
+    - "code_style"
+    - "verbosity"
+
+# Observability
+observability:
+  # Logging configuration
+  logging:
+    level: "info"  # debug|info|warn|error
+    structured: true
+    include_context: true
+  
+  # Metrics to collect
+  metrics:
+    - "execution_time"
+    - "success_rate"
+    - "input_size"
+    - "output_size"
+  
+  # Traces
+  tracing:
+    enabled: true
+    sample_rate: 1.0
+
+# Examples of agent usage
+examples:
+  - name: "Basic usage example"
+    description: "Shows typical usage of the agent"
+    input:
+      input_name: "Example input value"
+    expected_output:
+      output_name:
+        result: "Expected result"
+      metadata:
+        status: "success"
+  
+  - name: "Edge case example"
+    description: "Shows handling of edge cases"
+    input:
+      input_name: "Edge case input"
+    expected_output:
+      output_name:
+        result: "Edge case result"
+      metadata:
+        status: "success"
+
+# Testing specifications
+testing:
+  # Unit tests
+  unit_tests:
+    - name: "Test valid input"
+      input: {input_name: "test"}
+      expected_output: {output_name: {result: "test_result"}}
+  
+  # Integration tests
+  integration_tests:
+    - name: "Test with GitHub MCP"
+      setup: "Create test repository"
+      input: {input_name: "integration test"}
+      expected_outcome: "PR created"
+      teardown: "Delete test repository"
+
+# Documentation links
+documentation:
+  readme: "../README.md"
+  guides:
+    - "How to use this agent"
+    - "Common patterns"
+  examples: "../examples/agent-name/"
+  api_reference: "./api-reference.md"
+
+# Version history
+changelog:
+  - version: "1.0.0"
+    date: "2024-12-05"
+    changes:
+      - "Initial release"

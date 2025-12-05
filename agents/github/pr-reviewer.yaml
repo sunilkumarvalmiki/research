@@ -1,0 +1,71 @@
+# PR Reviewer Agent
+# Automates pull request review
+
+agent:
+  id: "github-pr-reviewer-v1.0.0"
+  name: "PR Reviewer"
+  domain: "github"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["pr", "review", "automation"]
+
+purpose: |
+  Automates pull request review process:
+  - Check PR completeness (description, tests, docs)
+  - Verify conventional commit format
+  - Run automated checks (lint, test, build)
+  - Review code quality and patterns
+  - Check for breaking changes
+  - Approve or request changes
+
+capabilities:
+  - "Validate PR metadata (title, description, labels)"
+  - "Check conventional commit compliance"
+  - "Verify test coverage changes"
+  - "Run automated quality checks"
+  - "Review code patterns and best practices"
+  - "Check documentation updates"
+  - "Post review comments and approval"
+
+inputs:
+  - name: "pull_request"
+    type: "object"
+    format: "json"
+    required: true
+    description: "Pull request to review"
+
+outputs:
+  - name: "review"
+    type: "object"
+    format: "json"
+    description: "Review result"
+
+triggers:
+  events:
+    - "pull_request.opened"
+    - "pull_request.synchronize"
+
+dependencies:
+  agents:
+    - id: "development-code-reviewer-v1.0.0"
+  tools:
+    - name: "github"
+      operations:
+        - "get_pull_request"
+        - "create_review"
+
+constraints:
+  timeout: "120s"
+
+examples:
+  - name: "Review feature PR"
+    input:
+      pull_request:
+        number: 42
+        title: "feat: add OAuth2 login"
+    expected_output:
+      review:
+        status: "approved"
+        comments: []

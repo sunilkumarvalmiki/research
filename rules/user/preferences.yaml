@@ -1,0 +1,205 @@
+# User Preferences
+# Version: 1.0.0
+# Personalized settings that override defaults
+
+user_preferences:
+  version: "1.0.0"
+  
+  # Code style preferences
+  code_style:
+    # Indentation
+    indentation:
+      type: "spaces"  # spaces or tabs
+      spaces_per_indent: 2  # 2 or 4
+    
+    # Line length
+    line_length: 100  # 80, 100, or 120
+    
+    # Quote style
+    quotes:
+      python: "double"  # single or double
+      javascript: "single"  # single or double
+      typescript: "single"
+    
+    # Trailing commas
+    trailing_commas: "multiline"  # always, never, multiline
+    
+    # Semicolons (JavaScript/TypeScript)
+    semicolons: "required"  # required or omit
+
+  # Communication preferences
+  communication:
+    # Verbosity level
+    verbosity: "detailed"  # minimal, standard, detailed
+    
+    # Notification preferences
+    notify_on:
+      - "error"
+      - "completion"
+      - "review_requested"
+    
+    # Notification channels
+    channels:
+      primary: "email"  # email, slack, teams
+      secondary: "github"
+    
+    # Comment style
+    comments:
+      prefer_inline: false
+      prefer_summary: true
+
+  # Agent behavior preferences
+  agent_behavior:
+    # Code generation preferences
+    code_generation:
+      include_types: true  # Type annotations/hints
+      include_docs: true  # Docstrings/comments
+      include_tests: true  # Generate tests with code
+      test_framework_preference:
+        python: "pytest"
+        javascript: "jest"
+    
+    # Review preferences
+    code_review:
+      strictness: "standard"  # relaxed, standard, strict
+      focus_areas:
+        - "security"
+        - "performance"
+        - "maintainability"
+    
+    # Auto-fix behavior
+    auto_fix:
+      formatting: true  # Auto-format code
+      simple_issues: true  # Fix obvious issues
+      require_approval: false  # Ask before fixing
+
+  # Workflow preferences
+  workflow:
+    # Branch preferences
+    branching:
+      default_base: "main"  # main or develop
+      branch_prefix: "feature/"
+    
+    # Commit preferences
+    commits:
+      sign_commits: true
+      squash_merge: true
+      auto_delete_branches: true
+    
+    # PR preferences
+    pull_requests:
+      draft_by_default: false
+      auto_assign_reviewers: true
+      preferred_reviewers:
+        - "team-member-1"
+        - "team-member-2"
+
+  # Development environment
+  environment:
+    # Editor/IDE
+    editor: "vscode"  # vscode, vim, intellij
+    
+    # Terminal
+    shell: "zsh"  # bash, zsh, fish
+    
+    # Package managers
+    package_managers:
+      python: "uv"  # pip, poetry, uv
+      javascript: "npm"  # npm, yarn, pnpm
+      rust: "cargo"
+      go: "go"
+    
+    # Preferred tools
+    tools:
+      formatter:
+        python: "ruff format"
+        javascript: "prettier"
+      linter:
+        python: "ruff check"
+        javascript: "eslint"
+
+  # Language preferences
+  languages:
+    # Primary languages
+    primary:
+      - "python"
+      - "typescript"
+    
+    # Learning/experimental
+    learning:
+      - "rust"
+      - "go"
+    
+    # Version preferences
+    versions:
+      python: "3.11+"
+      node: "20+"
+      rust: "stable"
+
+  # Project preferences
+  project:
+    # License preference
+    license: "MIT"
+    
+    # Documentation format
+    docs_format: "markdown"
+    
+    # README sections
+    readme_sections:
+      - "Installation"
+      - "Usage"
+      - "API Reference"
+      - "Contributing"
+      - "License"
+    
+    # Issue templates
+    issue_templates:
+      - "bug_report"
+      - "feature_request"
+      - "question"
+
+  # Time and schedule
+  schedule:
+    # Working hours (for notifications)
+    working_hours:
+      start: "09:00"
+      end: "18:00"
+      timezone: "UTC"
+    
+    # Preferred days for updates
+    update_days:
+      - "Monday"
+      - "Wednesday"
+
+  # Privacy preferences
+  privacy:
+    # Analytics
+    analytics: false
+    
+    # Telemetry
+    telemetry: false
+    
+    # Data sharing
+    share_anonymous_usage: false
+
+# Examples of how preferences are used
+examples:
+  code_style_application:
+    description: "User prefers 2-space indentation"
+    before: |
+      function example() {
+          return true;
+      }
+    after: |
+      function example() {
+        return true;
+      }
+  
+  verbosity_application:
+    minimal: "✓ Tests passed"
+    standard: "✓ 25 tests passed in 2.3s"
+    detailed: |
+      ✓ 25 tests passed in 2.3s
+      - Unit: 20 tests (1.5s)
+      - Integration: 5 tests (0.8s)
+      Coverage: 85%

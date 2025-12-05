@@ -1,0 +1,70 @@
+# TypeScript Development Rules
+# Version: 1.0.0
+
+typescript:
+  version: "1.0.0"
+  typescript_version: ">=5.0"
+  
+  tooling:
+    compiler: "tsc"
+    linter: "ESLint with @typescript-eslint"
+    formatter: "Prettier"
+    test_framework: "Jest or Vitest"
+    package_manager: "npm, yarn, or pnpm"
+  
+  structure:
+    layout: "src/"
+    required_files:
+      - "package.json"
+      - "tsconfig.json"
+      - ".eslintrc.js"
+      - ".prettierrc"
+      - "README.md"
+  
+  compiler_options:
+    strict: true
+    target: "ES2022"
+    module: "ESNext"
+    moduleResolution: "bundler"
+    esModuleInterop: true
+    skipLibCheck: false
+    noUnusedLocals: true
+    noUnusedParameters: true
+    noImplicitReturns: true
+    noFallthroughCasesInSwitch: true
+  
+  style:
+    line_length: 100
+    indentation: 2
+    quotes: "single"
+    semicolons: true
+    trailing_commas: "es5"
+  
+  naming:
+    interfaces: "PascalCase (no I prefix)"
+    types: "PascalCase"
+    classes: "PascalCase"
+    functions: "camelCase"
+    variables: "camelCase"
+    constants: "SCREAMING_SNAKE_CASE"
+    private: "#prefix or private keyword"
+  
+  type_system:
+    - "Use strict mode"
+    - "Avoid any type"
+    - "Use unknown over any"
+    - "Use type guards"
+    - "Use discriminated unions"
+  
+  testing:
+    coverage_min: 80
+    framework: "Jest with ts-jest"
+    e2e: "Playwright"
+  
+  best_practices:
+    - "Use async/await over callbacks"
+    - "Use const by default"
+    - "Use arrow functions"
+    - "Use destructuring"
+    - "Use optional chaining (?.)"
+    - "Use nullish coalescing (??)"

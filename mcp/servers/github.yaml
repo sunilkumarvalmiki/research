@@ -1,0 +1,211 @@
+# GitHub MCP Server Configuration
+# Version: 1.0.0
+
+mcp_server:
+  name: "github"
+  version: "1.0.0"
+  description: "Access GitHub repositories, issues, and pull requests"
+  
+  # Transport configuration
+  transport:
+    type: "stdio"
+    command: "npx"
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-github"
+  
+  # Environment variables
+  env:
+    GITHUB_TOKEN: "${GITHUB_TOKEN}"
+    # Optional: Specify GitHub Enterprise URL
+    # GITHUB_API_URL: "https://github.company.com/api/v3"
+  
+  # Capabilities provided by this server
+  capabilities:
+    # Resources that can be accessed
+    resources:
+      - name: "repositories"
+        description: "List and access repositories"
+      
+      - name: "issues"
+        description: "Read and create issues"
+      
+      - name: "pull_requests"
+        description: "Read and manage pull requests"
+      
+      - name: "files"
+        description: "Read repository files and contents"
+      
+      - name: "commits"
+        description: "Access commit history"
+    
+    # Tools that can be invoked
+    tools:
+      - name: "create_or_update_file"
+        description: "Create or update a file in a repository"
+        parameters:
+          - owner: "Repository owner"
+          - repo: "Repository name"
+          - path: "File path"
+          - content: "File content"
+          - message: "Commit message"
+          - branch: "Target branch"
+      
+      - name: "push_files"
+        description: "Push multiple files in a single commit"
+        parameters:
+          - owner: "Repository owner"
+          - repo: "Repository name"
+          - files: "Array of files with path and content"
+          - message: "Commit message"
+          - branch: "Target branch"
+      
+      - name: "create_issue"
+        description: "Create a new issue"
+        parameters:
+          - owner: "Repository owner"
+          - repo: "Repository name"
+          - title: "Issue title"
+          - body: "Issue description"
+          - labels: "Array of label names"
+      
+      - name: "create_pull_request"
+        description: "Create a new pull request"
+        parameters:
+          - owner: "Repository owner"
+          - repo: "Repository name"
+          - title: "PR title"
+          - body: "PR description"
+          - head: "Source branch"
+          - base: "Target branch"
+      
+      - name: "search_code"
+        description: "Search for code in repositories"
+        parameters:
+          - query: "Search query"
+          - owner: "Repository owner (optional)"
+          - repo: "Repository name (optional)"
+      
+      - name: "get_file_contents"
+        description: "Get contents of a file"
+        parameters:
+          - owner: "Repository owner"
+          - repo: "Repository name"
+          - path: "File path"
+          - ref: "Branch/tag/commit (optional)"
+      
+      - name: "list_commits"
+        description: "List commits in a repository"
+        parameters:
+          - owner: "Repository owner"
+          - repo: "Repository name"
+          - sha: "Branch/tag/commit (optional)"
+      
+      - name: "get_issue"
+        description: "Get details of an issue"
+        parameters:
+          - owner: "Repository owner"
+          - repo: "Repository name"
+          - issue_number: "Issue number"
+
+  # Configuration options
+  configuration:
+    # Rate limiting
+    rate_limit:
+      max_requests_per_hour: 5000
+      # GitHub API has different rate limits for authenticated vs unauthenticated
+    
+    # Retry policy
+    retry:
+      max_attempts: 3
+      backoff: "exponential"
+    
+    # Timeout
+    timeout: "30s"
+
+  # Security
+  security:
+    # Required permissions for GITHUB_TOKEN
+    required_permissions:
+      - "repo" # Full control of private repositories
+      - "workflow" # Update GitHub Action workflows
+    
+    optional_permissions:
+      - "admin:org" # For organization operations
+      - "admin:repo_hook" # For webhook management
+    
+    # Token security
+    token_security:
+      - "Store in environment variables"
+      - "Never commit to repository"
+      - "Use fine-grained tokens when possible"
+      - "Limit token scope to necessary permissions"
+
+  # Usage examples
+  examples:
+    - name: "Create a file"
+      prompt: "Create a new file called hello.py with a hello world program"
+      tool: "create_or_update_file"
+      parameters:
+        owner: "username"
+        repo: "my-repo"
+        path: "hello.py"
+        content: "print('Hello, World!')"
+        message: "Add hello world script"
+        branch: "main"
+    
+    - name: "Search code"
+      prompt: "Find all TODO comments in the repository"
+      tool: "search_code"
+      parameters:
+        query: "TODO repo:username/my-repo"
+    
+    - name: "Create issue"
+      prompt: "Create an issue for the bug we just found"
+      tool: "create_issue"
+      parameters:
+        owner: "username"
+        repo: "my-repo"
+        title: "Fix login redirect bug"
+        body: "Users are redirected to the wrong page after login"
+        labels: ["bug", "high-priority"]
+
+  # Integration with agents
+  agent_integration:
+    compatible_agents:
+      - "github/repo-manager"
+      - "github/pr-reviewer"
+      - "development/code-generator"
+      - "deployment/ci-cd-agent"
+    
+    use_cases:
+      - "Automated code generation and commits"
+      - "Issue and PR management"
+      - "Repository health monitoring"
+      - "Automated documentation updates"
+
+# Installation
+installation:
+  # Using npm (recommended)
+  npm: "npx @modelcontextprotocol/server-github"
+  
+  # Or install globally
+  global: "npm install -g @modelcontextprotocol/server-github"
+  
+  # Setup GitHub token
+  setup:
+    - "Create GitHub Personal Access Token"
+    - "Set GITHUB_TOKEN environment variable"
+    - "Configure in AI assistant settings"
+
+# Troubleshooting
+troubleshooting:
+  common_issues:
+    - issue: "Authentication failed"
+      solution: "Verify GITHUB_TOKEN is set correctly"
+    
+    - issue: "Permission denied"
+      solution: "Check token has required scopes"
+    
+    - issue: "Rate limit exceeded"
+      solution: "Wait for rate limit reset or use authenticated requests"

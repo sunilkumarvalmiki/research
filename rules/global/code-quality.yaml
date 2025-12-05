@@ -1,0 +1,323 @@
+# Code Quality Rules
+# Version: 1.0.0
+
+code_quality:
+  version: "1.0.0"
+  
+  # Complexity thresholds
+  complexity:
+    # McCabe cyclomatic complexity - maximum allowed
+    cyclomatic_max: 10
+    description: "Maximum cyclomatic complexity per function"
+    rationale: "Functions with >10 branches are hard to test and maintain"
+    
+    # Cognitive complexity - how hard code is to understand
+    cognitive_max: 15
+    description: "Maximum cognitive complexity per function"
+    rationale: "Measures mental effort required to understand code"
+    
+    # Maximum lines per function
+    function_lines_max: 50
+    description: "Maximum lines in a single function"
+    rationale: "Long functions are hard to understand and test"
+    exceptions:
+      - "Test functions can be longer for comprehensiveness"
+    
+    # Maximum lines per file
+    file_lines_max: 500
+    description: "Maximum lines in a single file"
+    rationale: "Large files indicate lack of separation of concerns"
+    exceptions:
+      - "Generated code"
+      - "Data files"
+    
+    # Maximum function parameters
+    parameters_max: 5
+    description: "Maximum parameters per function"
+    rationale: "Many parameters indicate poor abstraction"
+    alternatives:
+      - "Use configuration objects"
+      - "Apply builder pattern"
+    
+    # Maximum nesting depth
+    nesting_max: 4
+    description: "Maximum nesting depth for control structures"
+    rationale: "Deep nesting reduces readability"
+    alternatives:
+      - "Extract to functions"
+      - "Use early returns"
+      - "Invert conditions"
+
+  # Code duplication detection
+  duplication:
+    # Minimum lines to consider as duplication
+    min_lines: 6
+    description: "Minimum consecutive lines to flag as duplication"
+    
+    # Minimum tokens to consider as duplication
+    min_tokens: 50
+    description: "Minimum token count for semantic duplication"
+    
+    # Maximum allowed duplication percentage
+    max_duplication_percent: 5
+    description: "Maximum percentage of duplicated code in project"
+    
+    exceptions:
+      - "Test setup code"
+      - "Configuration files"
+      - "Generated code"
+
+  # Naming conventions
+  naming:
+    # Constants (e.g., MAX_SIZE, API_KEY)
+    constants: "SCREAMING_SNAKE_CASE"
+    pattern: "^[A-Z][A-Z0-9_]*$"
+    
+    # Classes (e.g., UserRepository, HttpClient)
+    classes: "PascalCase"
+    pattern: "^[A-Z][a-zA-Z0-9]*$"
+    
+    # Functions - language specific
+    functions:
+      python: "snake_case"
+      javascript: "camelCase"
+      typescript: "camelCase"
+      rust: "snake_case"
+      go: "camelCase"  # Or PascalCase for exported
+      java: "camelCase"
+    
+    # Variables - language specific
+    variables:
+      python: "snake_case"
+      javascript: "camelCase"
+      typescript: "camelCase"
+      rust: "snake_case"
+      go: "camelCase"
+      java: "camelCase"
+    
+    # Private/internal indicators
+    private:
+      python: "_prefix"
+      javascript: "#prefix or _prefix"
+      typescript: "private keyword"
+    
+    # Naming guidelines
+    guidelines:
+      - "Use descriptive names (min 3 chars, except i, j, k in loops)"
+      - "Avoid abbreviations unless widely known (HTTP, API, URL)"
+      - "Boolean variables should be questions (isValid, hasPermission)"
+      - "Function names should be verbs (getUserById, calculateTotal)"
+      - "Class names should be nouns (User, Repository, Service)"
+
+  # Documentation requirements
+  documentation:
+    # Public API documentation
+    public_functions: required
+    format: "language_specific"  # JSDoc, docstring, etc.
+    required_sections:
+      - "description"
+      - "parameters"
+      - "returns"
+      - "raises/throws"  # If applicable
+    
+    public_classes: required
+    required_sections:
+      - "description"
+      - "attributes"
+      - "examples"  # Recommended
+    
+    # Module/package documentation
+    modules: required
+    required_sections:
+      - "description"
+      - "usage_example"
+    
+    # Private/internal documentation
+    private_functions: recommended
+    private_classes: recommended
+    
+    # Inline comments
+    inline_comments:
+      guideline: "Explain why, not what"
+      max_line_length: 100
+      avoid:
+        - "Obvious statements"
+        - "Commented-out code (use git instead)"
+        - "TODO without issue reference"
+
+  # Code organization
+  organization:
+    # Import/require organization
+    imports:
+      order:
+        - "Standard library"
+        - "Third-party packages"
+        - "Local application imports"
+      grouping: required
+      sorting: "alphabetical within groups"
+    
+    # Function ordering
+    function_order:
+      - "Public functions before private"
+      - "Related functions grouped together"
+      - "High-level before low-level"
+    
+    # File organization
+    file_structure:
+      - "Imports/requires at top"
+      - "Constants after imports"
+      - "Classes and functions in logical order"
+      - "Main execution at bottom (if applicable)"
+
+  # Code style
+  style:
+    # Line length
+    line_length_max: 100
+    exceptions:
+      - "URLs and paths"
+      - "Long string literals"
+    
+    # Indentation
+    indentation:
+      type: "spaces"  # Not tabs
+      size: 4  # Can be overridden per language
+      rationale: "Consistent across all editors"
+    
+    # Whitespace
+    whitespace:
+      - "No trailing whitespace"
+      - "Single blank line between functions"
+      - "Two blank lines between classes (Python)"
+      - "Blank line at end of file"
+    
+    # String quotes
+    string_quotes:
+      python: "double quotes preferred"
+      javascript: "single quotes preferred"
+      typescript: "single quotes preferred"
+      
+    # Trailing commas
+    trailing_commas:
+      javascript: "multiline only"
+      typescript: "multiline only"
+      python: "multiline only"
+
+  # Error handling
+  error_handling:
+    # Exception handling
+    exceptions:
+      - "Catch specific exceptions, not generic Exception"
+      - "Never silently swallow exceptions"
+      - "Log exceptions with context"
+      - "Re-raise or return error, don't do both"
+    
+    # Error messages
+    error_messages:
+      - "Be specific and actionable"
+      - "Include relevant context (IDs, values)"
+      - "Don't expose sensitive information"
+    
+    # Return values
+    return_values:
+      - "Consistent return types"
+      - "Use Option/Maybe for nullable values"
+      - "Use Result/Either for operations that can fail"
+
+  # Performance considerations
+  performance:
+    # Algorithm complexity
+    complexity_notation:
+      guideline: "Document Big-O for non-trivial algorithms"
+      warn_threshold: "O(n²) or worse"
+    
+    # Resource usage
+    resources:
+      - "Close files and connections in finally/defer"
+      - "Avoid memory leaks (clear references)"
+      - "Use generators/iterators for large datasets"
+    
+    # Premature optimization
+    optimization:
+      guideline: "Optimize for readability first, performance second"
+      when_to_optimize:
+        - "Proven bottleneck (profiled)"
+        - "Critical path (measured)"
+        - "Resource constrained (embedded/mobile)"
+
+  # Code smells to avoid
+  code_smells:
+    - name: "Magic numbers"
+      description: "Unexplained numeric literals"
+      solution: "Use named constants"
+    
+    - name: "God objects"
+      description: "Classes that do too much"
+      solution: "Apply single responsibility principle"
+    
+    - name: "Feature envy"
+      description: "Method using another class's data excessively"
+      solution: "Move method to appropriate class"
+    
+    - name: "Long parameter list"
+      description: "Too many function parameters"
+      solution: "Use parameter objects or builder pattern"
+    
+    - name: "Dead code"
+      description: "Unused code"
+      solution: "Remove (rely on git history)"
+    
+    - name: "Speculative generality"
+      description: "Unused abstraction for future needs"
+      solution: "YAGNI - implement when needed"
+
+  # Enforcement
+  enforcement:
+    level: "error"
+    tools:
+      - "ESLint (JavaScript/TypeScript)"
+      - "Ruff (Python)"
+      - "Clippy (Rust)"
+      - "golangci-lint (Go)"
+    
+    ci_integration: required
+    pre_commit_hooks: recommended
+    ide_integration: recommended
+
+  # Exceptions and waivers
+  exceptions:
+    process:
+      - "Document reason in code comment"
+      - "Reference issue or ADR if applicable"
+      - "Get approval in code review"
+    
+    valid_reasons:
+      - "Generated code"
+      - "Third-party code"
+      - "Performance-critical code (with benchmarks)"
+      - "Legacy code (with migration plan)"
+
+# Examples
+examples:
+  good:
+    - |
+      # Good: Clear, simple, well-documented
+      def calculate_discount(price: float, discount_percent: float) -> float:
+          """Calculate discounted price.
+          
+          Args:
+              price: Original price
+              discount_percent: Discount percentage (0-100)
+          
+          Returns:
+              Discounted price
+          """
+          if discount_percent < 0 or discount_percent > 100:
+              raise ValueError("Discount must be between 0 and 100")
+          
+          return price * (1 - discount_percent / 100)
+  
+  bad:
+    - |
+      # Bad: Magic numbers, no validation, unclear
+      def calc(p, d):
+          return p * (1 - d / 100)

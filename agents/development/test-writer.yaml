@@ -1,0 +1,79 @@
+# Test Writer Agent
+# Generates comprehensive test suites
+
+agent:
+  id: "development-test-writer-v1.0.0"
+  name: "Test Writer"
+  domain: "development"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["testing", "quality", "tdd"]
+
+purpose: |
+  Creates comprehensive test suites:
+  - Unit tests with high coverage
+  - Integration tests for component interactions
+  - E2E tests for critical user flows
+  - Property-based tests for edge cases
+  - Test fixtures and mocks
+  - Performance/load tests
+
+capabilities:
+  - "Generate unit tests with mocking"
+  - "Create integration test scenarios"
+  - "Write E2E test flows"
+  - "Generate test fixtures and factories"
+  - "Create property-based tests (Hypothesis, fast-check)"
+  - "Write performance benchmarks"
+  - "Generate test data builders"
+
+inputs:
+  - name: "code"
+    type: "object"
+    format: "json"
+    required: true
+    description: "Code to test"
+
+  - name: "test_types"
+    type: "array"
+    format: "json"
+    required: false
+    default: ["unit"]
+    description: "Types of tests to generate"
+
+outputs:
+  - name: "test_suite"
+    type: "array"
+    format: "json"
+    description: "Generated test files"
+
+triggers:
+  events:
+    - "code.committed"
+  manual: true
+
+dependencies:
+  agents:
+    - id: "development-code-generator-v1.0.0"
+
+constraints:
+  timeout: "90s"
+
+examples:
+  - name: "Generate unit tests for Python function"
+    input:
+      code:
+        language: "python"
+        content: "def add(a, b): return a + b"
+      test_types: ["unit"]
+    expected_output:
+      test_suite:
+        - path: "tests/test_math.py"
+          content: |
+            def test_add_positive_numbers():
+                assert add(2, 3) == 5
+            
+            def test_add_negative_numbers():
+                assert add(-1, -1) == -2

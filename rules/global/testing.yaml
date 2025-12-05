@@ -1,0 +1,443 @@
+# Testing Rules
+# Version: 1.0.0
+
+testing:
+  version: "1.0.0"
+  
+  # Test coverage requirements
+  coverage:
+    # Minimum coverage percentages
+    min_overall: 80
+    description: "Minimum overall code coverage"
+    
+    min_new_code: 90
+    description: "Minimum coverage for new/changed code"
+    
+    min_critical_paths: 100
+    description: "Critical business logic must be fully covered"
+    
+    # Coverage reporting
+    reporting:
+      format: "HTML and lcov"
+      publish: "CI artifacts"
+      fail_build_on_decrease: true
+    
+    # Exclusions
+    exclude:
+      - "Test files themselves"
+      - "Generated code"
+      - "Configuration files"
+      - "Scripts and tooling"
+
+  # Test organization
+  organization:
+    # Test structure
+    structure:
+      pattern: "tests/ directory at project root"
+      mirror_source: "Mirror source code structure"
+      naming: "{module}_test.{ext} or test_{module}.{ext}"
+    
+    # Test categories
+    categories:
+      unit:
+        directory: "tests/unit/"
+        description: "Test individual functions/classes in isolation"
+        characteristics:
+          - "Fast (< 1ms each)"
+          - "Isolated (no external dependencies)"
+          - "Deterministic"
+        
+      integration:
+        directory: "tests/integration/"
+        description: "Test component interactions"
+        characteristics:
+          - "Medium speed (< 100ms each)"
+          - "May use test database or mock services"
+          - "Test real integrations"
+        
+      e2e:
+        directory: "tests/e2e/"
+        description: "Test complete user workflows"
+        characteristics:
+          - "Slow (seconds)"
+          - "Use real or staging environment"
+          - "Test critical paths"
+        
+      performance:
+        directory: "tests/performance/"
+        description: "Performance and load tests"
+        optional: true
+        
+      security:
+        directory: "tests/security/"
+        description: "Security-specific tests"
+        optional: true
+    
+    # Test markers/tags
+    markers:
+      unit: "Mark unit tests"
+      integration: "Mark integration tests"
+      e2e: "Mark end-to-end tests"
+      slow: "Mark slow tests (> 1s)"
+      smoke: "Mark critical smoke tests"
+      regression: "Mark regression tests"
+
+  # Test quality standards
+  quality:
+    # AAA pattern (Arrange, Act, Assert)
+    pattern: "AAA"
+    structure:
+      arrange: "Setup test data and dependencies"
+      act: "Execute the code being tested"
+      assert: "Verify the outcome"
+    
+    # Test characteristics
+    characteristics:
+      - "Independent: Tests don't depend on each other"
+      - "Repeatable: Same input = same output"
+      - "Fast: Run quickly to encourage frequent execution"
+      - "Isolated: Mock external dependencies"
+      - "Self-validating: Clear pass/fail, no manual inspection"
+    
+    # Test naming
+    naming:
+      pattern: "test_{what}_{condition}_{expected}"
+      examples:
+        - "test_login_with_valid_credentials_succeeds"
+        - "test_divide_by_zero_raises_exception"
+        - "test_get_user_when_not_found_returns_404"
+      
+      avoid:
+        - "test1, test2"  # Not descriptive
+        - "testFunction"  # Doesn't describe behavior
+    
+    # Assertions
+    assertions:
+      - "One logical assertion per test (preferred)"
+      - "Use specific assertions (assertEqual, not assertTrue)"
+      - "Include helpful failure messages"
+      - "Test both success and failure cases"
+    
+    # Test data
+    test_data:
+      - "Use factories or builders for complex objects"
+      - "Avoid magic values, use constants"
+      - "Generate random data for property tests"
+      - "Keep test data minimal and relevant"
+
+  # Test-driven development (TDD)
+  tdd:
+    recommended: true
+    
+    cycle:
+      - "Red: Write failing test"
+      - "Green: Write minimum code to pass"
+      - "Refactor: Improve code while keeping tests green"
+    
+    benefits:
+      - "Better design through testability"
+      - "Living documentation"
+      - "Regression safety"
+      - "Faster debugging"
+
+  # Mocking and stubbing
+  mocking:
+    # When to mock
+    mock_external:
+      - "Database calls"
+      - "API requests"
+      - "File system operations"
+      - "Time-dependent operations"
+      - "Random number generation"
+    
+    # Mocking strategies
+    strategies:
+      dependency_injection: "Preferred for testability"
+      test_doubles: "Mocks, stubs, spies, fakes"
+      
+    # Mock libraries
+    libraries:
+      python: "unittest.mock, pytest-mock"
+      javascript: "Jest, Sinon"
+      rust: "mockall"
+      go: "gomock, testify/mock"
+    
+    # Best practices
+    best_practices:
+      - "Mock at boundaries (external dependencies)"
+      - "Prefer fakes over mocks when practical"
+      - "Don't mock what you don't own (use adapters)"
+      - "Verify mock expectations"
+      - "Keep mocks simple"
+
+  # Fixtures and setup
+  fixtures:
+    # Test fixtures
+    definition: "Reusable test setup and teardown"
+    
+    # Fixture scope
+    scopes:
+      function: "New fixture for each test"
+      class: "Shared across test class"
+      module: "Shared across module"
+      session: "Shared across test session"
+    
+    # Cleanup
+    cleanup:
+      required: true
+      methods:
+        - "Teardown methods"
+        - "Context managers (with statements)"
+        - "Pytest fixtures with yield"
+        - "afterEach/afterAll hooks"
+
+  # Continuous integration
+  ci:
+    # Test execution in CI
+    execution:
+      run_on:
+        - "Every push"
+        - "Every pull request"
+        - "Before merge"
+      
+      parallel: "Run tests in parallel when possible"
+      
+      order:
+        - "Fast tests first (unit)"
+        - "Slower tests later (integration, e2e)"
+      
+      fail_fast: "Stop on first failure for quick feedback"
+    
+    # Test reporting
+    reporting:
+      format: "JUnit XML for CI integration"
+      artifacts:
+        - "Test results"
+        - "Coverage reports"
+        - "Screenshots (for e2e failures)"
+      
+      notifications:
+        on_failure: "Alert team"
+        on_success: "Silent or minimal"
+    
+    # Flaky test handling
+    flaky_tests:
+      tolerance: "Zero tolerance"
+      action:
+        - "Fix immediately"
+        - "Quarantine if can't fix quickly"
+        - "Track in issue tracker"
+      retry: "Not recommended (masks problems)"
+
+  # Test data management
+  test_data:
+    # Database tests
+    database:
+      strategy: "Isolated test database"
+      setup:
+        - "Create schema"
+        - "Seed minimal data"
+        - "Rollback after each test"
+      
+      alternatives:
+        - "In-memory database (SQLite)"
+        - "Test containers (Docker)"
+        - "Database snapshots"
+    
+    # File system tests
+    filesystem:
+      strategy: "Temporary directories"
+      cleanup: "Always cleanup after tests"
+      
+    # External APIs
+    external_apis:
+      strategy: "Mock or VCR (record/replay)"
+      avoid: "Calling real APIs in tests"
+
+  # Performance testing
+  performance:
+    # When to test performance
+    test_when:
+      - "Critical paths"
+      - "Known bottlenecks"
+      - "Before optimization"
+      - "Regression prevention"
+    
+    # Metrics
+    metrics:
+      - "Response time"
+      - "Throughput"
+      - "Resource usage (CPU, memory)"
+      - "Database queries"
+    
+    # Benchmarking
+    benchmarks:
+      - "Consistent environment"
+      - "Multiple iterations"
+      - "Statistical analysis"
+      - "Compare against baselines"
+
+  # Security testing
+  security:
+    # Security test types
+    types:
+      - "Input validation"
+      - "Authentication/authorization"
+      - "SQL injection prevention"
+      - "XSS prevention"
+      - "CSRF protection"
+    
+    # Tools
+    tools:
+      sast: "Static analysis (SonarQube, Bandit)"
+      dast: "Dynamic analysis (OWASP ZAP)"
+      dependency_scan: "Vulnerability scanning"
+
+  # Test maintenance
+  maintenance:
+    # Keep tests maintainable
+    practices:
+      - "Refactor tests along with code"
+      - "Remove obsolete tests"
+      - "Update tests when requirements change"
+      - "Keep tests DRY (Don't Repeat Yourself)"
+    
+    # Test debt
+    test_debt:
+      - "Track untested code"
+      - "Plan to improve coverage"
+      - "Prioritize critical paths"
+
+  # Language-specific frameworks
+  frameworks:
+    python:
+      unit: "pytest (preferred) or unittest"
+      mocking: "unittest.mock, pytest-mock"
+      coverage: "pytest-cov"
+      
+    javascript:
+      unit: "Jest (preferred) or Mocha"
+      mocking: "Jest built-in"
+      coverage: "Jest built-in or nyc"
+      e2e: "Playwright or Cypress"
+      
+    typescript:
+      unit: "Jest with ts-jest"
+      mocking: "Jest built-in"
+      coverage: "Jest built-in"
+      
+    rust:
+      unit: "cargo test (built-in)"
+      mocking: "mockall"
+      benchmarks: "criterion"
+      
+    go:
+      unit: "go test (built-in)"
+      mocking: "gomock, testify/mock"
+      coverage: "go test -cover"
+
+  # Enforcement
+  enforcement:
+    level: "error"
+    
+    # Required for merge
+    required:
+      - "All tests pass"
+      - "Coverage meets threshold"
+      - "No flaky tests"
+      - "Tests for new code"
+    
+    # CI checks
+    ci_checks:
+      - "Run test suite"
+      - "Check coverage"
+      - "Validate test quality"
+
+# Examples
+examples:
+  unit_test:
+    python: |
+      # Good unit test example
+      def test_calculate_discount_with_valid_percentage_returns_discounted_price():
+          # Arrange
+          price = 100.0
+          discount_percent = 20.0
+          
+          # Act
+          result = calculate_discount(price, discount_percent)
+          
+          # Assert
+          assert result == 80.0
+      
+      def test_calculate_discount_with_negative_percentage_raises_value_error():
+          # Arrange
+          price = 100.0
+          discount_percent = -10.0
+          
+          # Act & Assert
+          with pytest.raises(ValueError, match="Discount must be between 0 and 100"):
+              calculate_discount(price, discount_percent)
+    
+    javascript: |
+      // Good unit test example
+      describe('calculateDiscount', () => {
+        test('with valid percentage returns discounted price', () => {
+          // Arrange
+          const price = 100.0;
+          const discountPercent = 20.0;
+          
+          // Act
+          const result = calculateDiscount(price, discountPercent);
+          
+          // Assert
+          expect(result).toBe(80.0);
+        });
+        
+        test('with negative percentage throws error', () => {
+          // Arrange
+          const price = 100.0;
+          const discountPercent = -10.0;
+          
+          // Act & Assert
+          expect(() => {
+            calculateDiscount(price, discountPercent);
+          }).toThrow('Discount must be between 0 and 100');
+        });
+      });
+  
+  integration_test:
+    python: |
+      # Good integration test example
+      @pytest.mark.integration
+      def test_create_user_saves_to_database(test_db):
+          # Arrange
+          user_data = {
+              "email": "test@example.com",
+              "name": "Test User"
+          }
+          repository = UserRepository(test_db)
+          
+          # Act
+          user = repository.create(user_data)
+          
+          # Assert
+          saved_user = repository.get_by_id(user.id)
+          assert saved_user.email == user_data["email"]
+          assert saved_user.name == user_data["name"]
+  
+  e2e_test:
+    javascript: |
+      // Good e2e test example
+      test('user can login and see dashboard', async ({ page }) => {
+        // Arrange - Navigate to login page
+        await page.goto('/login');
+        
+        // Act - Fill in login form and submit
+        await page.fill('[name="email"]', 'user@example.com');
+        await page.fill('[name="password"]', 'password123');
+        await page.click('button[type="submit"]');
+        
+        // Assert - Verify redirect to dashboard
+        await expect(page).toHaveURL('/dashboard');
+        await expect(page.locator('h1')).toContainText('Welcome');
+      });

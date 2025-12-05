@@ -1,0 +1,63 @@
+# Rust Development Rules
+# Version: 1.0.0
+
+rust:
+  version: "1.0.0"
+  rust_version: "stable"
+  
+  tooling:
+    compiler: "rustc via cargo"
+    formatter: "rustfmt"
+    linter: "clippy"
+    test_framework: "cargo test (built-in)"
+    package_manager: "cargo"
+  
+  structure:
+    layout: "cargo standard"
+    required_files:
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "README.md"
+      - "LICENSE"
+  
+  clippy_lints:
+    level: "warn"
+    pedantic: true
+    nursery: false
+  
+  style:
+    line_length: 100
+    indentation: 4
+    use_rustfmt: true
+  
+  naming:
+    types: "PascalCase"
+    traits: "PascalCase"
+    functions: "snake_case"
+    variables: "snake_case"
+    constants: "SCREAMING_SNAKE_CASE"
+    modules: "snake_case"
+  
+  ownership:
+    - "Prefer borrowing over ownership transfer"
+    - "Use references (&) when possible"
+    - "Use Cow for conditional ownership"
+    - "Minimize cloning"
+  
+  error_handling:
+    - "Use Result<T, E> for fallible operations"
+    - "Use Option<T> for nullable values"
+    - "Use ? operator for error propagation"
+    - "Create custom error types"
+  
+  testing:
+    coverage_min: 80
+    test_organization: "Same file or tests/ directory"
+    benchmarks: "Use criterion"
+  
+  best_practices:
+    - "Use iterators over for loops"
+    - "Use pattern matching"
+    - "Avoid unsafe unless necessary"
+    - "Document public APIs"
+    - "Use type system to prevent errors"

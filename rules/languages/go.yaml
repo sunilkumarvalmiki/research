@@ -1,0 +1,56 @@
+# Go Development Rules
+# Version: 1.0.0
+
+go:
+  version: "1.0.0"
+  go_version: ">=1.21"
+  
+  tooling:
+    formatter: "gofmt or goimports"
+    linter: "golangci-lint"
+    test_framework: "go test (built-in)"
+    package_manager: "go modules"
+  
+  structure:
+    layout: "standard Go project layout"
+    required_files:
+      - "go.mod"
+      - "go.sum"
+      - "README.md"
+  
+  style:
+    line_length: 100
+    indentation: "tabs"
+    use_gofmt: true
+  
+  naming:
+    packages: "lowercase, single word"
+    types: "PascalCase"
+    interfaces: "PascalCase (usually -er suffix)"
+    functions: "camelCase or PascalCase (exported)"
+    variables: "camelCase or PascalCase (exported)"
+    constants: "camelCase or PascalCase (exported)"
+  
+  error_handling:
+    - "Return errors, don't panic"
+    - "Check all errors"
+    - "Wrap errors with context"
+    - "Use errors.Is and errors.As"
+  
+  concurrency:
+    - "Use channels for communication"
+    - "Use mutexes for shared state"
+    - "Always use defer to unlock"
+    - "Use context for cancellation"
+  
+  testing:
+    coverage_min: 80
+    test_files: "*_test.go"
+    table_driven_tests: recommended
+  
+  best_practices:
+    - "Accept interfaces, return structs"
+    - "Keep interfaces small"
+    - "Use defer for cleanup"
+    - "Avoid package-level state"
+    - "Use go vet and staticcheck"

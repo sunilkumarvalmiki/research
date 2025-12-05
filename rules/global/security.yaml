@@ -1,0 +1,439 @@
+# Security Rules
+# Version: 1.0.0
+
+security:
+  version: "1.0.0"
+  
+  # Secret management
+  secrets:
+    # Detection
+    detection: required
+    tools:
+      - "git-secrets"
+      - "truffleHog"
+      - "GitHub secret scanning"
+    
+    # Storage policies
+    storage:
+      allowed:
+        - "Environment variables"
+        - "Secret management services (AWS Secrets Manager, HashiCorp Vault)"
+        - "Encrypted configuration files (with keys in secret manager)"
+      
+      forbidden:
+        - "Source code"
+        - "Git repositories"
+        - "Log files"
+        - "Error messages"
+        - "Comments"
+        - "Configuration files (unencrypted)"
+    
+    # Types of secrets
+    patterns:
+      - type: "API Keys"
+        pattern: "api[_-]?key.*['\"]([a-zA-Z0-9]{32,})['\"]"
+      
+      - type: "AWS Keys"
+        pattern: "AKIA[0-9A-Z]{16}"
+      
+      - type: "Private Keys"
+        pattern: "-----BEGIN (RSA|DSA|EC|OPENSSH) PRIVATE KEY-----"
+      
+      - type: "Database Passwords"
+        pattern: "(password|passwd|pwd).*['\"]([^'\"]{8,})['\"]"
+      
+      - type: "OAuth Tokens"
+        pattern: "(oauth|token).*['\"]([a-zA-Z0-9._-]{20,})['\"]"
+    
+    # Rotation policy
+    rotation:
+      frequency: "90 days (recommended)"
+      required_for:
+        - "Production credentials"
+        - "Service accounts"
+        - "API keys with write access"
+    
+    # Emergency response
+    breach_response:
+      - "Immediately rotate compromised secrets"
+      - "Audit access logs"
+      - "Notify security team"
+      - "Review and revoke any unauthorized access"
+
+  # Input validation and sanitization
+  input_validation:
+    # All user input must be validated
+    all_user_input: required
+    
+    # Validation strategy
+    validation_strategy: "whitelist over blacklist"
+    
+    # Sanitization approach
+    sanitization: "context_aware"
+    contexts:
+      - sql: "Use parameterized queries"
+      - html: "Escape HTML entities"
+      - javascript: "JSON.stringify or proper escaping"
+      - shell: "Avoid shell execution, use library functions"
+      - xml: "Escape XML entities"
+      - ldap: "Escape LDAP special characters"
+    
+    # Validation rules
+    rules:
+      - "Validate data type (string, int, email, etc.)"
+      - "Validate length and size limits"
+      - "Validate format using regex or schemas"
+      - "Validate ranges for numeric inputs"
+      - "Sanitize based on output context"
+      - "Reject invalid input, don't try to fix it"
+    
+    # File uploads
+    file_uploads:
+      - "Validate file type by content, not extension"
+      - "Limit file size"
+      - "Scan for malware"
+      - "Store in isolated location"
+      - "Never execute uploaded files"
+      - "Use random names, not user-provided names"
+
+  # Authentication and authorization
+  authentication:
+    # Password requirements
+    passwords:
+      min_length: 12
+      requirements:
+        - "Mix of uppercase and lowercase"
+        - "Numbers and special characters"
+        - "Not common passwords (use dictionary check)"
+        - "Not similar to username/email"
+      
+      storage:
+        algorithm: "bcrypt, scrypt, or Argon2"
+        never: "plain text or reversible encryption"
+        work_factor: "10+ rounds for bcrypt"
+      
+      transmission:
+        - "Always over HTTPS"
+        - "Never in URL parameters"
+        - "Never in logs"
+    
+    # Session management
+    sessions:
+      - "Generate secure random session IDs"
+      - "Regenerate session ID on login"
+      - "Expire sessions after inactivity (30 minutes default)"
+      - "Absolute session timeout (8 hours default)"
+      - "Secure cookie flags (HttpOnly, Secure, SameSite)"
+      - "Invalidate on logout"
+    
+    # Multi-factor authentication
+    mfa:
+      recommended_for:
+        - "Production systems"
+        - "Administrative accounts"
+        - "Financial transactions"
+      methods:
+        - "TOTP (Time-based One-Time Password)"
+        - "WebAuthn / FIDO2"
+        - "SMS (least secure, avoid if possible)"
+  
+  authorization:
+    # Access control
+    model: "Least privilege principle"
+    
+    # Common patterns
+    patterns:
+      - "Role-Based Access Control (RBAC)"
+      - "Attribute-Based Access Control (ABAC)"
+      - "Resource-based permissions"
+    
+    # Best practices
+    practices:
+      - "Check authorization on every request"
+      - "Verify at both API and data layers"
+      - "Default deny (explicit allow required)"
+      - "Don't rely on client-side checks"
+      - "Audit authorization decisions"
+
+  # Dependency management
+  dependencies:
+    # Vulnerability scanning
+    vulnerability_scan: "daily"
+    tools:
+      python: "pip-audit, Safety"
+      javascript: "npm audit, Snyk"
+      rust: "cargo-audit"
+      go: "govulncheck"
+    
+    # Patching policy
+    critical_patch_sla: "48 hours"
+    high_patch_sla: "7 days"
+    medium_patch_sla: "30 days"
+    
+    # Dependency hygiene
+    lockfile: required
+    purpose: "Ensure reproducible builds"
+    
+    # Minimize dependencies
+    guidelines:
+      - "Audit new dependencies before adding"
+      - "Check maintenance status and security history"
+      - "Prefer well-maintained, popular libraries"
+      - "Remove unused dependencies"
+      - "Pin to specific versions"
+    
+    # Supply chain security
+    supply_chain:
+      - "Verify package signatures"
+      - "Use trusted package registries"
+      - "Review dependency changes in updates"
+      - "Monitor for typosquatting"
+
+  # Cryptography
+  cryptography:
+    # Encryption
+    encryption:
+      algorithms:
+        symmetric: "AES-256-GCM"
+        asymmetric: "RSA-2048 or ECC P-256"
+      
+      avoid:
+        - "DES, 3DES"
+        - "RC4"
+        - "MD5"
+        - "SHA1 for signatures"
+      
+      key_management:
+        - "Generate keys securely (cryptographically random)"
+        - "Store keys in secret management service"
+        - "Rotate keys periodically"
+        - "Never hardcode keys"
+    
+    # Hashing
+    hashing:
+      for_passwords: "bcrypt, scrypt, Argon2"
+      for_integrity: "SHA-256, SHA-3"
+      never: "MD5, SHA1"
+    
+    # Random number generation
+    random:
+      use: "Cryptographically secure RNG"
+      sources:
+        python: "secrets module"
+        javascript: "crypto.getRandomValues()"
+        rust: "rand crate with OsRng"
+        go: "crypto/rand"
+
+  # Secure communication
+  communication:
+    # HTTPS/TLS
+    https:
+      required: "All external communication"
+      tls_version: "1.2 minimum, 1.3 preferred"
+      certificate_validation: "Always validate"
+      
+    # API security
+    api:
+      - "Use API keys or OAuth2 for authentication"
+      - "Rate limiting to prevent abuse"
+      - "Request size limits"
+      - "CORS configuration (restrictive)"
+      - "Input validation on all endpoints"
+      - "Output encoding"
+
+  # Logging and monitoring
+  logging:
+    # What to log
+    log_security_events:
+      - "Authentication attempts (success and failure)"
+      - "Authorization failures"
+      - "Input validation failures"
+      - "Application errors and exceptions"
+    
+    # What NOT to log
+    never_log:
+      - "Passwords or secrets"
+      - "Session tokens"
+      - "Credit card numbers or PII"
+      - "Full request bodies (may contain sensitive data)"
+    
+    # Log security
+    log_protection:
+      - "Protect logs from unauthorized access"
+      - "Prevent log injection attacks"
+      - "Retain logs for audit (90 days minimum)"
+      - "Alert on suspicious patterns"
+
+  # Error handling
+  error_handling:
+    # Error messages
+    error_messages:
+      - "Don't expose stack traces to users"
+      - "Don't reveal system internals"
+      - "Don't indicate if username exists (timing-safe)"
+      - "Log detailed errors server-side"
+      - "Return generic errors to client"
+    
+    # Exception handling
+    exceptions:
+      - "Catch and handle all exceptions"
+      - "Fail securely (default deny)"
+      - "Don't expose exception details"
+
+  # Security headers
+  security_headers:
+    required:
+      - name: "Content-Security-Policy"
+        value: "default-src 'self'"
+      
+      - name: "X-Frame-Options"
+        value: "DENY or SAMEORIGIN"
+      
+      - name: "X-Content-Type-Options"
+        value: "nosniff"
+      
+      - name: "Strict-Transport-Security"
+        value: "max-age=31536000; includeSubDomains"
+      
+      - name: "X-XSS-Protection"
+        value: "1; mode=block"
+      
+      - name: "Referrer-Policy"
+        value: "strict-origin-when-cross-origin"
+
+  # Common vulnerabilities (OWASP Top 10)
+  owasp_top_10:
+    - id: "A01:2021"
+      name: "Broken Access Control"
+      prevention:
+        - "Implement proper authorization checks"
+        - "Default deny"
+        - "Check permissions on every request"
+    
+    - id: "A02:2021"
+      name: "Cryptographic Failures"
+      prevention:
+        - "Use strong encryption algorithms"
+        - "Protect data in transit and at rest"
+        - "Proper key management"
+    
+    - id: "A03:2021"
+      name: "Injection"
+      prevention:
+        - "Use parameterized queries"
+        - "Input validation and sanitization"
+        - "Escape output based on context"
+    
+    - id: "A04:2021"
+      name: "Insecure Design"
+      prevention:
+        - "Threat modeling"
+        - "Security requirements"
+        - "Secure design patterns"
+    
+    - id: "A05:2021"
+      name: "Security Misconfiguration"
+      prevention:
+        - "Secure defaults"
+        - "Minimal configuration"
+        - "Regular updates"
+        - "Remove unused features"
+    
+    - id: "A06:2021"
+      name: "Vulnerable and Outdated Components"
+      prevention:
+        - "Keep dependencies updated"
+        - "Remove unused dependencies"
+        - "Monitor for vulnerabilities"
+    
+    - id: "A07:2021"
+      name: "Identification and Authentication Failures"
+      prevention:
+        - "Implement MFA"
+        - "Strong password policies"
+        - "Secure session management"
+    
+    - id: "A08:2021"
+      name: "Software and Data Integrity Failures"
+      prevention:
+        - "Verify software signatures"
+        - "Use integrity checks"
+        - "Secure CI/CD pipeline"
+    
+    - id: "A09:2021"
+      name: "Security Logging and Monitoring Failures"
+      prevention:
+        - "Comprehensive logging"
+        - "Real-time monitoring"
+        - "Incident response plan"
+    
+    - id: "A10:2021"
+      name: "Server-Side Request Forgery (SSRF)"
+      prevention:
+        - "Validate and sanitize URLs"
+        - "Whitelist allowed domains"
+        - "Network segmentation"
+
+  # Enforcement
+  enforcement:
+    level: "error"
+    
+    # Required security tools
+    tools:
+      sast: "Static Application Security Testing"
+      dast: "Dynamic Application Security Testing (where applicable)"
+      sca: "Software Composition Analysis"
+      secret_scanning: "Pre-commit and CI scanning"
+    
+    # Security reviews
+    reviews:
+      code_review: "All code changes"
+      security_review: "High-risk changes"
+      penetration_testing: "Before major releases"
+    
+    # Compliance
+    compliance:
+      - "Follow industry standards (OWASP, NIST)"
+      - "Comply with regulations (GDPR, SOC2, etc.)"
+      - "Document security decisions"
+
+# Examples
+examples:
+  good:
+    sql_injection_prevention: |
+      # Good: Parameterized query
+      cursor.execute(
+          "SELECT * FROM users WHERE email = ?",
+          (user_email,)
+      )
+    
+    password_storage: |
+      # Good: Using bcrypt
+      import bcrypt
+      
+      password_hash = bcrypt.hashpw(
+          password.encode('utf-8'),
+          bcrypt.gensalt(rounds=12)
+      )
+    
+    secret_management: |
+      # Good: Using environment variables
+      import os
+      api_key = os.environ.get('API_KEY')
+      if not api_key:
+          raise ValueError("API_KEY not configured")
+  
+  bad:
+    sql_injection_vulnerable: |
+      # Bad: String concatenation
+      cursor.execute(
+          f"SELECT * FROM users WHERE email = '{user_email}'"
+      )
+    
+    password_plain_text: |
+      # Bad: Plain text password
+      user.password = password  # Never do this!
+    
+    hardcoded_secret: |
+      # Bad: Hardcoded API key
+      API_KEY = "sk_live_1234567890abcdef"  # Never do this!

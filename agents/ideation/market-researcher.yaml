@@ -1,0 +1,104 @@
+# Market Researcher Agent
+# Analyzes market needs, competition, and opportunities
+
+agent:
+  id: "ideation-market-researcher-v1.0.0"
+  name: "Market Researcher"
+  domain: "ideation"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["market-analysis", "competition", "opportunity"]
+
+purpose: |
+  Conducts market research to inform product decisions:
+  - Analyzes competitive landscape
+  - Identifies market gaps and opportunities
+  - Assesses target audience needs
+  - Evaluates market trends and dynamics
+  - Provides data-driven insights for positioning
+
+capabilities:
+  - "Analyze competitor products and features"
+  - "Identify market gaps and opportunities"
+  - "Research target audience demographics and needs"
+  - "Track industry trends and emerging technologies"
+  - "Generate competitive analysis matrices"
+  - "Provide market positioning recommendations"
+  - "Estimate market size and growth potential"
+
+inputs:
+  - name: "product_description"
+    type: "string"
+    format: "text"
+    required: true
+    description: "Description of the product or feature being researched"
+    examples:
+      - "AI-powered code review tool for Python"
+
+  - name: "target_market"
+    type: "string"
+    format: "text"
+    required: false
+    description: "Specific market segment to focus on"
+    examples:
+      - "Enterprise software teams"
+      - "Individual developers"
+
+  - name: "competitors"
+    type: "array"
+    format: "json"
+    required: false
+    description: "Known competitors to analyze"
+
+outputs:
+  - name: "market_analysis"
+    type: "object"
+    format: "yaml"
+    description: "Comprehensive market research report"
+    schema:
+      type: "object"
+      properties:
+        competitors:
+          type: "array"
+        market_gaps:
+          type: "array"
+        opportunities:
+          type: "array"
+        threats:
+          type: "array"
+
+  - name: "competitive_matrix"
+    type: "object"
+    format: "markdown"
+    description: "Feature comparison table"
+
+triggers:
+  manual: true
+
+dependencies:
+  tools:
+    - name: "web_search"
+      operations:
+        - "search"
+        - "scrape"
+
+constraints:
+  timeout: "180s"
+  max_retries: 2
+
+examples:
+  - name: "Analyze code review tools market"
+    input:
+      product_description: "AI-powered code review tool"
+      target_market: "Enterprise development teams"
+    expected_output:
+      market_analysis:
+        competitors:
+          - name: "SonarQube"
+            strengths: ["Established", "Multi-language"]
+            weaknesses: ["Complex setup", "UI dated"]
+        market_gaps:
+          - "AI-native code suggestions"
+          - "Real-time collaborative review"

@@ -1,0 +1,67 @@
+# Cleanup Agent
+# Maintains repository hygiene
+
+agent:
+  id: "github-cleanup-agent-v1.0.0"
+  name: "Cleanup Agent"
+  domain: "github"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["cleanup", "maintenance", "hygiene"]
+
+purpose: |
+  Maintains repository cleanliness:
+  - Delete stale branches
+  - Close stale issues and PRs
+  - Archive old discussions
+  - Clean up workflow runs
+  - Remove unused labels
+  - Organize issues with labels
+
+capabilities:
+  - "Identify and delete stale branches"
+  - "Close inactive issues and PRs"
+  - "Clean old workflow runs"
+  - "Manage labels and milestones"
+  - "Archive completed discussions"
+
+inputs:
+  - name: "repository"
+    type: "object"
+    format: "json"
+    required: true
+    description: "Repository to clean"
+
+outputs:
+  - name: "cleanup_report"
+    type: "object"
+    format: "json"
+    description: "Cleanup actions performed"
+
+triggers:
+  schedule:
+    cron: "0 0 * * 0"  # Weekly
+  manual: true
+
+dependencies:
+  tools:
+    - name: "github"
+      operations:
+        - "delete_branch"
+        - "close_issue"
+
+constraints:
+  timeout: "180s"
+
+examples:
+  - name: "Clean stale branches"
+    input:
+      repository:
+        owner: "user"
+        name: "repo"
+    expected_output:
+      cleanup_report:
+        branches_deleted: 5
+        issues_closed: 2

@@ -1,0 +1,58 @@
+# Infrastructure Agent
+# Provisions and configures infrastructure
+
+agent:
+  id: "deployment-infrastructure-agent-v1.0.0"
+  name: "Infrastructure Agent"
+  domain: "deployment"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["infrastructure", "iac", "provisioning"]
+
+purpose: |
+  Manages infrastructure as code:
+  - Provision cloud resources (AWS, GCP, Azure)
+  - Configure Kubernetes clusters
+  - Setup databases and storage
+  - Configure networking and security
+  - Manage infrastructure state
+
+capabilities:
+  - "Generate Terraform/Pulumi configurations"
+  - "Provision cloud resources"
+  - "Configure Kubernetes manifests"
+  - "Setup monitoring and logging"
+  - "Manage infrastructure secrets"
+  - "Cost optimization recommendations"
+
+inputs:
+  - name: "architecture"
+    type: "object"
+    format: "yaml"
+    required: true
+    description: "Infrastructure requirements"
+
+outputs:
+  - name: "infrastructure_config"
+    type: "object"
+    format: "yaml"
+    description: "IaC configurations"
+
+triggers:
+  manual: true
+
+constraints:
+  timeout: "300s"
+
+examples:
+  - name: "Provision Kubernetes cluster"
+    input:
+      architecture:
+        platform: "kubernetes"
+        nodes: 3
+    expected_output:
+      infrastructure_config:
+        provider: "aws"
+        resources: ["eks_cluster"]
