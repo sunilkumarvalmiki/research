@@ -1,0 +1,69 @@
+# Filesystem MCP Server Configuration
+# Version: 1.0.0
+
+mcp_server:
+  name: "filesystem"
+  version: "1.0.0"
+  description: "Access local filesystem for reading and writing files"
+  
+  transport:
+    type: "stdio"
+    command: "npx"
+    args:
+      - "-y"
+      - "@modelcontextprotocol/server-filesystem"
+      - "/path/to/allowed/directory"
+  
+  capabilities:
+    resources:
+      - "files"
+      - "directories"
+    
+    tools:
+      - name: "read_file"
+        description: "Read file contents"
+      
+      - name: "write_file"
+        description: "Write or create file"
+      
+      - name: "list_directory"
+        description: "List directory contents"
+      
+      - name: "search_files"
+        description: "Search for files"
+
+  security:
+    # Important: Limit to specific directories
+    allowed_paths:
+      - "/home/user/projects"
+      - "/tmp"
+    
+    denied_paths:
+      - "/etc"
+      - "/usr"
+      - "~/.ssh"
+    
+    restrictions:
+      - "Cannot access files outside allowed paths"
+      - "Cannot execute files"
+      - "Size limits on read/write operations"
+
+  configuration:
+    # File size limits
+    max_file_size: "10MB"
+    
+    # Allowed operations
+    operations:
+      read: true
+      write: true
+      delete: false  # Safer to disallow
+      execute: false
+
+  examples:
+    - name: "Read file"
+      prompt: "Read the contents of config.yaml"
+      tool: "read_file"
+    
+    - name: "Create file"
+      prompt: "Create a new README.md file"
+      tool: "write_file"

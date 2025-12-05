@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package context;
+
+option go_package = "github.com/research/context-service/pb";
+
+// Context Service - Shared context across AI tools
+service ContextService {
+  // Store context with semantic embedding
+  rpc StoreContext(StoreContextRequest) returns (StoreContextResponse);
+  
+  // Query context using semantic search
+  rpc QueryContext(QueryContextRequest) returns (QueryContextResponse);
+  
+  // Stream context updates
+  rpc StreamUpdates(StreamRequest) returns (stream ContextUpdate);
+  
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// Store context request
+message StoreContextRequest {
+  string key = 1;
+  string value = 2;
+  map<string, string> metadata = 3;
+  string namespace = 4;  // User/project isolation
+}
+
+message StoreContextResponse {
+  string id = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+// Query context request
+message QueryContextRequest {
+  string query = 1;
+  int32 limit = 2;
+  double similarity_threshold = 3;
+  string namespace = 4;
+  map<string, string> filters = 5;
+}
+
+message ContextResult {
+  string id = 1;
+  string key = 2;
+  string value = 3;
+  double score = 4;
+  map<string, string> metadata = 5;
+}
+
+message QueryContextResponse {
+  repeated ContextResult results = 1;
+  int32 total_count = 2;
+}
+
+// Stream updates
+message StreamRequest {
+  string namespace = 1;
+  repeated string event_types = 2;
+}
+
+message ContextUpdate {
+  string event_type = 1;
+  string key = 2;
+  string value = 3;
+  map<string, string> metadata = 4;
+  int64 timestamp = 5;
+}
+
+// Health check
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  enum Status {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+  }
+  Status status = 1;
+  map<string, string> details = 2;
+}
