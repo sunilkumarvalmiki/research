@@ -219,7 +219,8 @@ check_security() {
             print_fail "Potential secrets found!"
         fi
     else
-        print_info "Install git-secrets for secret scanning"
+        print_info "Install git-secrets for comprehensive secret scanning"
+        print_info "Consider using: truffleHog, detect-secrets, or gitleaks"
     fi
     
     # Check for .env in git
@@ -309,8 +310,9 @@ main() {
     echo "For detailed guidance, see:"
     echo "https://github.com/sunilkumarvalmiki/research/tree/main/profile-analysis"
     
-    # Exit with error if critical failures
-    if [ $FAILED -gt 3 ]; then
+    # Exit with error if critical failures (configurable threshold)
+    FAILURE_THRESHOLD=${FAILURE_THRESHOLD:-3}
+    if [ $FAILED -gt $FAILURE_THRESHOLD ]; then
         exit 1
     fi
 }

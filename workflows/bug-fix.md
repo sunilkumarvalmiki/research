@@ -181,7 +181,7 @@ For production-breaking bugs:
 ### 3. Emergency Deploy
 
 ```bash
-git tag v1.2.1  # Patch version
+git tag -a v1.2.1 -m "Hotfix: fix critical login issue"
 git push origin v1.2.1
 # CI/CD deploys automatically
 ```

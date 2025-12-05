@@ -48,6 +48,8 @@ services:
       retries: 3
 
   # Context Service - Shared context across AI tools
+  # Note: Build from ai-context-manager repository
+  # Clone https://github.com/sunilkumarvalmiki/ai-context-manager to ./context-service
   context-service:
     build:
       context: ./context-service

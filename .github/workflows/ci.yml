@@ -57,7 +57,7 @@ jobs:
       - name: Type check with mypy
         run: |
           pip install mypy
-          mypy . || true  # Don't fail on type errors yet
+          mypy . --ignore-missing-imports || echo "Type checking issues found - review recommended"
       
       - name: Test with pytest
         run: |
