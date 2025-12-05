@@ -1,0 +1,62 @@
+# Monitoring Agent
+# Tracks system health and performance
+
+agent:
+  id: "operations-monitoring-agent-v1.0.0"
+  name: "Monitoring Agent"
+  domain: "operations"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["monitoring", "observability", "metrics"]
+
+purpose: |
+  Monitors system health and performance:
+  - Configure monitoring dashboards
+  - Set up alerts and thresholds
+  - Track SLI/SLO metrics
+  - Analyze performance trends
+  - Generate health reports
+
+capabilities:
+  - "Setup Prometheus/Grafana dashboards"
+  - "Configure alerting rules"
+  - "Track SLI/SLO compliance"
+  - "Analyze logs and metrics"
+  - "Generate health reports"
+  - "Detect anomalies"
+
+inputs:
+  - name: "service"
+    type: "object"
+    format: "yaml"
+    required: true
+    description: "Service to monitor"
+
+outputs:
+  - name: "monitoring_config"
+    type: "object"
+    format: "yaml"
+    description: "Monitoring configuration"
+
+triggers:
+  events:
+    - "deployment.completed"
+  manual: true
+
+constraints:
+  timeout: "90s"
+
+examples:
+  - name: "Setup API monitoring"
+    input:
+      service:
+        name: "api"
+        type: "http"
+    expected_output:
+      monitoring_config:
+        metrics: ["request_rate", "error_rate", "latency"]
+        alerts:
+          - name: "high_error_rate"
+            condition: "error_rate > 0.05"

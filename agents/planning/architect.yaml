@@ -1,0 +1,255 @@
+# System Architect Agent
+# Designs system architecture and selects technology patterns
+
+agent:
+  id: "planning-architect-v1.0.0"
+  name: "System Architect"
+  domain: "planning"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["architecture", "design", "patterns"]
+
+purpose: |
+  Designs comprehensive system architecture based on requirements:
+  - Selects architectural patterns (monolith, microservices, serverless, etc.)
+  - Recommends technology stack
+  - Defines system components and their interactions
+  - Creates Architecture Decision Records (ADRs)
+  - Performs cost-benefit analysis
+  - Evaluates scalability and performance characteristics
+  - Ensures alignment with non-functional requirements
+
+capabilities:
+  - "Select appropriate architectural patterns for requirements"
+  - "Recommend technology stack based on constraints"
+  - "Generate system architecture diagrams (C4, UML)"
+  - "Create Architecture Decision Records (ADRs)"
+  - "Estimate infrastructure costs"
+  - "Analyze scalability characteristics"
+  - "Identify architectural risks and trade-offs"
+  - "Define component interfaces and contracts"
+
+inputs:
+  - name: "requirements"
+    type: "object"
+    format: "yaml"
+    required: true
+    description: "Functional and non-functional requirements"
+    schema:
+      type: "object"
+      properties:
+        functional:
+          type: "array"
+        non_functional:
+          type: "array"
+
+  - name: "constraints"
+    type: "object"
+    format: "json"
+    required: false
+    description: "Technical and business constraints"
+    schema:
+      type: "object"
+      properties:
+        budget:
+          type: "number"
+        team_expertise:
+          type: "array"
+        timeline:
+          type: "string"
+        scalability_target:
+          type: "object"
+
+outputs:
+  - name: "architecture"
+    type: "object"
+    format: "yaml"
+    description: "Complete architecture specification"
+    schema:
+      type: "object"
+      properties:
+        pattern:
+          type: "string"
+          enum: ["monolith", "microservices", "serverless", "hybrid"]
+        technology_stack:
+          type: "object"
+        components:
+          type: "array"
+        data_flow:
+          type: "object"
+    examples:
+      - pattern: "microservices"
+        technology_stack:
+          backend: "Node.js + Express"
+          database: "PostgreSQL + Redis"
+          message_queue: "RabbitMQ"
+          deployment: "Kubernetes"
+        components:
+          - name: "Auth Service"
+            type: "microservice"
+            responsibility: "User authentication"
+            interfaces:
+              - "/api/auth/login"
+              - "/api/auth/register"
+
+  - name: "architecture_decisions"
+    type: "array"
+    format: "markdown"
+    description: "ADRs documenting key architectural decisions"
+    examples:
+      - title: "ADR-001: Use PostgreSQL for primary database"
+        date: "2024-12-05"
+        status: "Accepted"
+        context: "Need reliable ACID-compliant database"
+        decision: "Use PostgreSQL"
+        consequences: "Strong consistency, proven scalability"
+
+  - name: "cost_estimate"
+    type: "object"
+    format: "yaml"
+    description: "Infrastructure cost estimation"
+    schema:
+      type: "object"
+      properties:
+        monthly_operational_cost:
+          type: "number"
+        initial_setup_cost:
+          type: "number"
+        cost_breakdown:
+          type: "object"
+
+  - name: "scalability_analysis"
+    type: "object"
+    format: "yaml"
+    description: "Scalability characteristics and bottlenecks"
+
+triggers:
+  events:
+    - "feasibility.approved"
+  manual: true
+
+dependencies:
+  agents:
+    - id: "ideation-requirements-analyst-v1.0.0"
+      optional: false
+    - id: "ideation-feasibility-assessor-v1.0.0"
+      optional: true
+  
+  tools:
+    - name: "filesystem"
+      operations:
+        - "write_file"
+
+constraints:
+  timeout: "180s"
+  max_retries: 2
+  resources:
+    memory_mb: 2048
+
+error_handling:
+  on_failure:
+    action: "notify"
+
+configuration:
+  settings:
+    diagram_format: "mermaid"
+    include_cost_analysis: true
+    adr_template: "madr"
+  user_preferences:
+    - "tech_stack_preference"
+    - "deployment_target"
+
+examples:
+  - name: "Design authentication system architecture"
+    description: "Create architecture for OAuth2-based authentication"
+    input:
+      requirements:
+        functional:
+          - id: "FR-001"
+            title: "OAuth2 Login"
+            description: "Support Google and GitHub OAuth"
+        non_functional:
+          - id: "NFR-001"
+            type: "performance"
+            description: "Handle 1000 concurrent users"
+          - id: "NFR-002"
+            type: "security"
+            description: "OWASP compliance"
+      constraints:
+        budget: 500
+        team_expertise: ["Node.js", "PostgreSQL"]
+        timeline: "4 weeks"
+    expected_output:
+      architecture:
+        pattern: "monolith"
+        technology_stack:
+          backend: "Node.js + Express"
+          database: "PostgreSQL"
+          cache: "Redis"
+          auth: "Passport.js"
+        components:
+          - name: "Auth Module"
+            type: "module"
+            responsibility: "OAuth2 integration"
+          - name: "Session Manager"
+            type: "module"
+            responsibility: "Session handling"
+      architecture_decisions:
+        - title: "ADR-001: Monolith vs Microservices"
+          decision: "Start with modular monolith"
+          rationale: "Team size and timeline favor simplicity"
+
+  - name: "Design high-traffic API architecture"
+    description: "Scalable API for 100K+ requests/minute"
+    input:
+      requirements:
+        non_functional:
+          - type: "performance"
+            description: "100K requests/minute"
+          - type: "availability"
+            description: "99.9% uptime"
+      constraints:
+        budget: 5000
+    expected_output:
+      architecture:
+        pattern: "microservices"
+        technology_stack:
+          api_gateway: "Kong"
+          services: "Go"
+          database: "PostgreSQL (replicated)"
+          cache: "Redis Cluster"
+          message_queue: "NATS"
+          deployment: "Kubernetes"
+      cost_estimate:
+        monthly_operational_cost: 3500
+        cost_breakdown:
+          compute: 2000
+          database: 1000
+          networking: 500
+
+testing:
+  unit_tests:
+    - name: "Select appropriate pattern for small app"
+      input:
+        requirements:
+          functional: [{title: "Simple CRUD"}]
+        constraints:
+          team_expertise: ["Python"]
+      expected_output:
+        architecture:
+          pattern: "monolith"
+  
+  integration_tests:
+    - name: "Generate complete architecture with ADRs"
+      setup: "Create sample requirements"
+      expected_outcome: "Architecture YAML and ADR markdown files created"
+
+documentation:
+  readme: "../README.md"
+  guides:
+    - "Architectural pattern selection guide"
+    - "Writing effective ADRs"
+    - "Cost optimization strategies"
+  examples: "../examples/architect/"

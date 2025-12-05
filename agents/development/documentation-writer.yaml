@@ -1,0 +1,73 @@
+# Documentation Writer Agent
+# Generates technical documentation
+
+agent:
+  id: "development-documentation-writer-v1.0.0"
+  name: "Documentation Writer"
+  domain: "development"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["documentation", "docs", "technical-writing"]
+
+purpose: |
+  Creates comprehensive technical documentation:
+  - API documentation from code
+  - User guides and tutorials
+  - Architecture documentation
+  - README files
+  - Changelog generation
+  - Inline code documentation
+
+capabilities:
+  - "Generate API docs (OpenAPI, JSDoc, Sphinx)"
+  - "Create README files"
+  - "Write user guides and tutorials"
+  - "Generate changelogs from commits"
+  - "Create architecture diagrams and docs"
+  - "Write inline documentation"
+
+inputs:
+  - name: "source"
+    type: "object"
+    format: "json"
+    required: true
+    description: "Source to document"
+
+  - name: "doc_type"
+    type: "string"
+    format: "text"
+    required: true
+    description: "Type of documentation to generate"
+
+outputs:
+  - name: "documentation"
+    type: "object"
+    format: "markdown"
+    description: "Generated documentation"
+
+triggers:
+  events:
+    - "code.committed"
+    - "release.created"
+  manual: true
+
+dependencies:
+  agents:
+    - id: "development-code-generator-v1.0.0"
+
+constraints:
+  timeout: "90s"
+
+examples:
+  - name: "Generate API documentation"
+    input:
+      source:
+        type: "api"
+        language: "python"
+      doc_type: "api_reference"
+    expected_output:
+      documentation:
+        format: "markdown"
+        content: "# API Reference\n\n## Endpoints..."

@@ -1,0 +1,100 @@
+# Task Decomposer Agent
+# Breaks down architecture into manageable development tasks
+
+agent:
+  id: "planning-task-decomposer-v1.0.0"
+  name: "Task Decomposer"
+  domain: "planning"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["planning", "tasks", "breakdown"]
+
+purpose: |
+  Decomposes architecture and requirements into actionable development tasks:
+  - Creates work breakdown structure (WBS)
+  - Identifies task dependencies
+  - Sequences tasks for optimal flow
+  - Generates GitHub issues from tasks
+  - Maps tasks to team members based on skills
+  - Defines task acceptance criteria
+
+capabilities:
+  - "Break down architecture into implementation tasks"
+  - "Identify task dependencies and sequencing"
+  - "Create GitHub issues with proper labels and templates"
+  - "Map tasks to required skills and expertise"
+  - "Generate sprint/iteration plans"
+  - "Define task acceptance criteria"
+  - "Estimate task granularity and scope"
+
+inputs:
+  - name: "architecture"
+    type: "object"
+    format: "yaml"
+    required: true
+    description: "System architecture from architect agent"
+
+  - name: "team_skills"
+    type: "array"
+    format: "json"
+    required: false
+    description: "Team member skills for task assignment"
+
+outputs:
+  - name: "tasks"
+    type: "array"
+    format: "yaml"
+    description: "Decomposed tasks with dependencies"
+    schema:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          id:
+            type: "string"
+          title:
+            type: "string"
+          description:
+            type: "string"
+          dependencies:
+            type: "array"
+          estimated_hours:
+            type: "number"
+          required_skills:
+            type: "array"
+
+triggers:
+  events:
+    - "architecture.approved"
+  manual: true
+
+dependencies:
+  agents:
+    - id: "planning-architect-v1.0.0"
+  tools:
+    - name: "github"
+      operations:
+        - "create_issue"
+
+constraints:
+  timeout: "90s"
+
+examples:
+  - name: "Decompose authentication system"
+    input:
+      architecture:
+        components:
+          - name: "Auth Module"
+            features: ["OAuth2", "Session Management"]
+    expected_output:
+      tasks:
+        - id: "TASK-001"
+          title: "Setup OAuth2 providers"
+          dependencies: []
+          estimated_hours: 4
+        - id: "TASK-002"
+          title: "Implement session storage"
+          dependencies: ["TASK-001"]
+          estimated_hours: 6

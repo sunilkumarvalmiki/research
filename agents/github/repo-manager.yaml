@@ -1,0 +1,243 @@
+# Repository Manager Agent
+# Manages repository lifecycle and health
+
+agent:
+  id: "github-repo-manager-v1.0.0"
+  name: "Repository Manager"
+  domain: "github"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["repository", "management", "cleanup"]
+
+purpose: |
+  Manages repository lifecycle and health:
+  - Calculate repository health scores
+  - Identify repositories for cleanup (archive/delete)
+  - Apply repository templates and standards
+  - Manage branch policies
+  - Cross-repository operations
+  - Generate health reports and recommendations
+
+capabilities:
+  - "Calculate repository health scores based on multiple factors"
+  - "Identify inactive or unmaintained repositories"
+  - "Recommend archive, delete, or merge actions"
+  - "Apply repository templates (README, LICENSE, CI)"
+  - "Configure branch protection rules"
+  - "Perform cross-repository updates"
+  - "Generate repository inventory and health reports"
+
+inputs:
+  - name: "repositories"
+    type: "array"
+    format: "json"
+    required: true
+    description: "Repositories to analyze"
+    schema:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          name:
+            type: "string"
+          owner:
+            type: "string"
+
+  - name: "action"
+    type: "string"
+    format: "text"
+    required: true
+    description: "Action to perform"
+    examples:
+      - "health_check"
+      - "cleanup_analysis"
+      - "apply_template"
+
+outputs:
+  - name: "health_report"
+    type: "object"
+    format: "yaml"
+    description: "Repository health assessment"
+    schema:
+      type: "object"
+      properties:
+        repository:
+          type: "string"
+        health_score:
+          type: "number"
+        issues:
+          type: "array"
+        recommendations:
+          type: "array"
+
+  - name: "cleanup_recommendations"
+    type: "array"
+    format: "yaml"
+    description: "Repositories recommended for cleanup"
+    schema:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          repository:
+            type: "string"
+          action:
+            type: "string"
+            enum: ["archive", "delete", "merge"]
+          reason:
+            type: "string"
+
+triggers:
+  schedule:
+    cron: "0 0 * * 0"  # Weekly on Sunday
+    timezone: "UTC"
+  manual: true
+
+dependencies:
+  tools:
+    - name: "github"
+      operations:
+        - "list_repositories"
+        - "get_repository"
+        - "update_repository"
+        - "archive_repository"
+        - "get_commit_activity"
+        - "get_repository_stats"
+
+constraints:
+  timeout: "300s"
+  max_retries: 2
+  rate_limit:
+    max_requests_per_minute: 30
+
+configuration:
+  settings:
+    health_score_weights:
+      has_readme: 15
+      has_license: 10
+      has_ci: 15
+      has_tests: 20
+      recent_activity: 25
+      has_description: 5
+      has_topics: 5
+      open_issues_ratio: 5
+    
+    cleanup_criteria:
+      archive_after_days: 180
+      min_commits_to_keep: 5
+      zero_stars_inactive_days: 90
+
+examples:
+  - name: "Health check for sunilkumarvalmiki profile"
+    description: "Analyze repository health and provide recommendations"
+    input:
+      repositories:
+        - name: "Open-Jarvis"
+          owner: "sunilkumarvalmiki"
+        - name: "practice"
+          owner: "sunilkumarvalmiki"
+        - name: "PRICEBOX-CARDS"
+          owner: "sunilkumarvalmiki"
+      action: "health_check"
+    expected_output:
+      health_report:
+        repository: "Open-Jarvis"
+        health_score: 75
+        issues:
+          - "Missing LICENSE file"
+          - "No CI/CD configuration"
+        recommendations:
+          - "Add LICENSE (MIT recommended)"
+          - "Setup GitHub Actions for CI"
+          - "Add issue templates"
+
+  - name: "Cleanup analysis for inactive repos"
+    description: "Identify repositories for archival or deletion"
+    input:
+      repositories:
+        - name: "practice"
+          owner: "sunilkumarvalmiki"
+        - name: "PRICEBOX-CARDS"
+          owner: "sunilkumarvalmiki"
+        - name: "phone-book"
+          owner: "sunilkumarvalmiki"
+        - name: "Random"
+          owner: "sunilkumarvalmiki"
+        - name: "SRM_PMS"
+          owner: "sunilkumarvalmiki"
+      action: "cleanup_analysis"
+    expected_output:
+      cleanup_recommendations:
+        - repository: "practice"
+          action: "archive"
+          reason: "Learning repository, inactive for 6+ months"
+        - repository: "PRICEBOX-CARDS"
+          action: "archive"
+          reason: "Old project, no recent activity"
+        - repository: "phone-book"
+          action: "archive"
+          reason: "Tutorial project, completed"
+        - repository: "Random"
+          action: "archive"
+          reason: "Experimental code, no ongoing development"
+        - repository: "SRM_PMS"
+          action: "delete"
+          reason: "Empty repository, can be deleted after backup"
+
+  - name: "Profile-wide enhancement recommendations"
+    description: "Recommendations for sunilkumarvalmiki profile"
+    input:
+      repositories:
+        - name: "Open-Jarvis"
+          owner: "sunilkumarvalmiki"
+        - name: "ai-context-manager"
+          owner: "sunilkumarvalmiki"
+        - name: "polynote"
+          owner: "sunilkumarvalmiki"
+        - name: "Super-Brain"
+          owner: "sunilkumarvalmiki"
+        - name: "SuperBrain"
+          owner: "sunilkumarvalmiki"
+      action: "health_check"
+    expected_output:
+      cleanup_recommendations:
+        - repository: "Super-Brain"
+          action: "merge"
+          reason: "Merge into SuperBrain (consolidate related repos)"
+        - repository: "Open-Jarvis"
+          action: "enhance"
+          reason: "Add README improvements, LICENSE, CI, issue templates"
+        - repository: "ai-context-manager"
+          action: "enhance"
+          reason: "Complete implementation, fix documentation URLs"
+        - repository: "polynote"
+          action: "enhance"
+          reason: "Add deployment docs, production configuration"
+
+testing:
+  unit_tests:
+    - name: "Calculate health score"
+      input:
+        repository:
+          has_readme: true
+          has_license: false
+          has_ci: true
+          recent_commits: 10
+      expected_output:
+        health_score: 60
+  
+  integration_tests:
+    - name: "Full profile analysis"
+      setup: "Mock GitHub API responses"
+      input:
+        action: "cleanup_analysis"
+      expected_outcome: "Cleanup recommendations generated"
+
+documentation:
+  readme: "../README.md"
+  guides:
+    - "Repository health scoring methodology"
+    - "Cleanup criteria and best practices"
+    - "Profile optimization strategies"

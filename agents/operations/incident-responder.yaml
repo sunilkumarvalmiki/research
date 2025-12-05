@@ -1,0 +1,60 @@
+# Incident Responder Agent
+# Handles alerts and incidents
+
+agent:
+  id: "operations-incident-responder-v1.0.0"
+  name: "Incident Responder"
+  domain: "operations"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["incident", "response", "troubleshooting"]
+
+purpose: |
+  Responds to incidents and alerts:
+  - Triage and categorize incidents
+  - Run diagnostic checks
+  - Execute remediation playbooks
+  - Escalate when needed
+  - Generate incident reports
+
+capabilities:
+  - "Triage incoming alerts"
+  - "Run diagnostic commands"
+  - "Execute remediation scripts"
+  - "Escalate to on-call engineers"
+  - "Create incident tickets"
+  - "Generate post-mortems"
+
+inputs:
+  - name: "alert"
+    type: "object"
+    format: "json"
+    required: true
+    description: "Alert/incident information"
+
+outputs:
+  - name: "response"
+    type: "object"
+    format: "json"
+    description: "Response actions taken"
+
+triggers:
+  events:
+    - "alert.triggered"
+
+constraints:
+  timeout: "60s"
+
+examples:
+  - name: "Respond to high CPU alert"
+    input:
+      alert:
+        type: "high_cpu"
+        service: "api"
+        severity: "warning"
+    expected_output:
+      response:
+        actions: ["scaled_up"]
+        status: "resolved"

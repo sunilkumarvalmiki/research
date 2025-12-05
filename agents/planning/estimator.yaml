@@ -1,0 +1,76 @@
+# Estimator Agent
+# Provides time and resource estimates for tasks and projects
+
+agent:
+  id: "planning-estimator-v1.0.0"
+  name: "Estimator"
+  domain: "planning"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["estimation", "planning", "resources"]
+
+purpose: |
+  Provides accurate estimates for development work:
+  - Time estimation using historical data
+  - Resource allocation recommendations
+  - Risk-adjusted estimates (best/worst/likely)
+  - Confidence intervals for estimates
+  - Velocity-based projections
+  - Budget estimation
+
+capabilities:
+  - "Estimate task and project duration"
+  - "Provide three-point estimates (optimistic/likely/pessimistic)"
+  - "Calculate confidence intervals"
+  - "Factor in team velocity and historical data"
+  - "Identify estimation risks and uncertainties"
+  - "Generate resource allocation plans"
+  - "Estimate costs based on resource needs"
+
+inputs:
+  - name: "tasks"
+    type: "array"
+    format: "yaml"
+    required: true
+    description: "Tasks to estimate"
+
+  - name: "historical_data"
+    type: "object"
+    format: "json"
+    required: false
+    description: "Historical velocity and completion data"
+
+outputs:
+  - name: "estimates"
+    type: "object"
+    format: "yaml"
+    description: "Detailed estimates with confidence levels"
+
+triggers:
+  events:
+    - "tasks.created"
+  manual: true
+
+dependencies:
+  agents:
+    - id: "planning-task-decomposer-v1.0.0"
+
+constraints:
+  timeout: "60s"
+
+examples:
+  - name: "Estimate feature development"
+    input:
+      tasks:
+        - id: "TASK-001"
+          title: "OAuth2 integration"
+          complexity: "medium"
+    expected_output:
+      estimates:
+        total_hours:
+          optimistic: 16
+          likely: 24
+          pessimistic: 40
+        confidence: 0.75

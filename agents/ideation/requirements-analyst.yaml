@@ -1,0 +1,246 @@
+# Requirements Analyst Agent
+# Extracts and structures requirements from various sources
+
+agent:
+  id: "ideation-requirements-analyst-v1.0.0"
+  name: "Requirements Analyst"
+  domain: "ideation"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    updated: "2024-12-05"
+    tags: ["requirements", "analysis", "user-stories"]
+
+purpose: |
+  Extracts, structures, and validates requirements from unstructured sources such as:
+  - Conversations and meeting transcripts
+  - Documents (PDF, Word, Markdown)
+  - User feedback and support tickets
+  - GitHub issues and discussions
+  
+  Converts raw input into structured requirements with:
+  - User stories with acceptance criteria
+  - Functional and non-functional requirements
+  - Requirement prioritization (MoSCoW, RICE scoring)
+  - Conflict detection and resolution
+  - Traceability to source material
+
+capabilities:
+  - "Parse multi-format inputs (text, PDF, audio transcripts, markdown)"
+  - "Extract functional and non-functional requirements"
+  - "Generate user stories in standard format"
+  - "Create acceptance criteria with testable conditions"
+  - "Apply prioritization frameworks (MoSCoW, RICE)"
+  - "Detect conflicting requirements"
+  - "Map requirements to GitHub issues"
+  - "Generate requirement traceability matrix"
+
+inputs:
+  - name: "source"
+    type: "object"
+    format: "json"
+    required: true
+    description: "Source material containing requirements"
+    schema:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+          enum: ["text", "file", "github_issue", "conversation"]
+        content:
+          type: "string"
+        metadata:
+          type: "object"
+    examples:
+      - type: "github_issue"
+        content: "We need a user authentication system with OAuth2 support"
+        metadata:
+          issue_number: 42
+          repository: "owner/repo"
+
+  - name: "prioritization_method"
+    type: "string"
+    format: "text"
+    required: false
+    default: "MoSCoW"
+    description: "Method for requirement prioritization"
+    examples:
+      - "MoSCoW"
+      - "RICE"
+      - "Kano"
+
+  - name: "include_technical_requirements"
+    type: "boolean"
+    format: "json"
+    required: false
+    default: true
+    description: "Extract technical/non-functional requirements"
+
+outputs:
+  - name: "requirements"
+    type: "object"
+    format: "yaml"
+    description: "Structured requirements document"
+    schema:
+      type: "object"
+      properties:
+        functional:
+          type: "array"
+        non_functional:
+          type: "array"
+        user_stories:
+          type: "array"
+        conflicts:
+          type: "array"
+    examples:
+      - functional:
+          - id: "FR-001"
+            title: "User Login"
+            description: "Users must be able to log in with OAuth2"
+            priority: "Must Have"
+            source: "GitHub Issue #42"
+        user_stories:
+          - id: "US-001"
+            as_a: "user"
+            i_want: "to log in with Google"
+            so_that: "I can access my account securely"
+            acceptance_criteria:
+              - "User sees Google login button"
+              - "Login redirects to Google OAuth"
+              - "Successful login creates session"
+
+  - name: "traceability_matrix"
+    type: "object"
+    format: "yaml"
+    description: "Maps requirements to sources and downstream artifacts"
+
+  - name: "conflicts_report"
+    type: "array"
+    format: "yaml"
+    description: "List of detected requirement conflicts"
+
+triggers:
+  events:
+    - "issue.opened"
+    - "issue.labeled"
+    - "discussion.created"
+  filters:
+    labels: ["requirements", "feature-request"]
+  manual: true
+
+dependencies:
+  tools:
+    - name: "github"
+      operations:
+        - "get_issue"
+        - "create_issue"
+        - "add_labels"
+    
+    - name: "filesystem"
+      operations:
+        - "read_file"
+        - "write_file"
+
+constraints:
+  timeout: "120s"
+  max_retries: 2
+  resources:
+    memory_mb: 1024
+    cpu_cores: 1
+
+error_handling:
+  on_failure:
+    action: "notify"
+    notify_channels: ["github_issue"]
+
+configuration:
+  settings:
+    min_confidence_threshold: 0.7
+    extract_diagrams: true
+    generate_examples: true
+  user_preferences:
+    - "verbosity"
+    - "output_format"
+
+examples:
+  - name: "Extract from GitHub issue"
+    description: "Convert GitHub issue to structured requirements"
+    input:
+      source:
+        type: "github_issue"
+        content: |
+          We need to add a dark mode to the application.
+          Users should be able to toggle between light and dark themes.
+          The preference should be saved and persist across sessions.
+        metadata:
+          issue_number: 123
+    expected_output:
+      requirements:
+        functional:
+          - id: "FR-001"
+            title: "Theme Toggle"
+            description: "Provide light/dark theme toggle"
+            priority: "Should Have"
+        user_stories:
+          - id: "US-001"
+            as_a: "user"
+            i_want: "to switch to dark mode"
+            so_that: "I can reduce eye strain in low light"
+            acceptance_criteria:
+              - "Toggle button visible in settings"
+              - "Theme change is immediate"
+              - "Preference persists after logout"
+
+  - name: "Extract from conversation transcript"
+    description: "Parse meeting notes to extract requirements"
+    input:
+      source:
+        type: "text"
+        content: |
+          Meeting Notes: Product Planning
+          
+          John: We need better search functionality
+          Sarah: Agreed, users can't find what they need
+          John: Should support filters by date and category
+          Sarah: And save search history
+    expected_output:
+      requirements:
+        functional:
+          - id: "FR-001"
+            title: "Enhanced Search"
+            description: "Improve search with filters and history"
+            priority: "Must Have"
+        user_stories:
+          - id: "US-001"
+            as_a: "user"
+            i_want: "to filter search results by date"
+            so_that: "I can find recent items quickly"
+
+testing:
+  unit_tests:
+    - name: "Parse simple requirement"
+      input:
+        source:
+          type: "text"
+          content: "Add user export feature"
+      expected_output:
+        requirements:
+          functional:
+            - title: "User Export"
+  
+  integration_tests:
+    - name: "GitHub issue to requirements"
+      setup: "Create test issue"
+      input:
+        source:
+          type: "github_issue"
+          content: "Feature request text"
+      expected_outcome: "Requirements extracted and saved"
+
+documentation:
+  readme: "../README.md"
+  guides:
+    - "Requirement extraction best practices"
+    - "Writing effective user stories"
+  examples: "../examples/requirements-analyst/"

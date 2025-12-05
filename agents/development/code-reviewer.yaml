@@ -1,0 +1,100 @@
+# Code Reviewer Agent
+# Automated code review with security and quality checks
+
+agent:
+  id: "development-code-reviewer-v1.0.0"
+  name: "Code Reviewer"
+  domain: "development"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["review", "quality", "security"]
+
+purpose: |
+  Performs comprehensive automated code review:
+  - Static analysis for bugs and code smells
+  - Security vulnerability detection
+  - Performance anti-pattern identification
+  - Code complexity analysis
+  - Best practice compliance
+  - Style guide enforcement
+  - Improvement suggestions
+
+capabilities:
+  - "Run static analysis tools (SonarQube, ESLint, Pylint)"
+  - "Detect security vulnerabilities (Bandit, npm audit)"
+  - "Identify performance issues"
+  - "Calculate complexity metrics (cyclomatic, cognitive)"
+  - "Check code style compliance"
+  - "Suggest refactoring opportunities"
+  - "Generate review comments in PR format"
+
+inputs:
+  - name: "pull_request"
+    type: "object"
+    format: "json"
+    required: true
+    description: "PR to review"
+
+  - name: "review_depth"
+    type: "string"
+    format: "text"
+    required: false
+    default: "standard"
+    description: "Review thoroughness level"
+
+outputs:
+  - name: "review_comments"
+    type: "array"
+    format: "json"
+    description: "Review findings and suggestions"
+    schema:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          file:
+            type: "string"
+          line:
+            type: "number"
+          severity:
+            type: "string"
+          category:
+            type: "string"
+          message:
+            type: "string"
+
+  - name: "quality_metrics"
+    type: "object"
+    format: "json"
+    description: "Code quality scores"
+
+triggers:
+  events:
+    - "pull_request.opened"
+    - "pull_request.synchronize"
+
+dependencies:
+  tools:
+    - name: "github"
+      operations:
+        - "get_pull_request"
+        - "create_review_comment"
+
+constraints:
+  timeout: "180s"
+
+examples:
+  - name: "Review Python PR"
+    input:
+      pull_request:
+        number: 42
+        files: ["src/auth.py"]
+    expected_output:
+      review_comments:
+        - file: "src/auth.py"
+          line: 15
+          severity: "warning"
+          category: "security"
+          message: "Potential SQL injection vulnerability"

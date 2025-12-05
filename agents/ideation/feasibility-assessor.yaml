@@ -1,0 +1,93 @@
+# Feasibility Assessor Agent
+# Evaluates technical and business feasibility of ideas
+
+agent:
+  id: "ideation-feasibility-assessor-v1.0.0"
+  name: "Feasibility Assessor"
+  domain: "ideation"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["feasibility", "risk-assessment", "validation"]
+
+purpose: |
+  Evaluates the feasibility of proposed features or products:
+  - Technical feasibility assessment
+  - Resource requirement estimation
+  - Risk identification and mitigation
+  - Timeline estimation
+  - ROI and business case analysis
+  - Dependency mapping
+
+capabilities:
+  - "Assess technical complexity and risks"
+  - "Estimate resource requirements (time, budget, team)"
+  - "Identify technical dependencies and blockers"
+  - "Evaluate required expertise and skills"
+  - "Provide go/no-go recommendations"
+  - "Generate risk mitigation strategies"
+  - "Estimate development timeline"
+
+inputs:
+  - name: "requirements"
+    type: "object"
+    format: "yaml"
+    required: true
+    description: "Structured requirements from requirements analyst"
+
+  - name: "constraints"
+    type: "object"
+    format: "json"
+    required: false
+    description: "Known constraints (budget, timeline, team size)"
+
+outputs:
+  - name: "feasibility_report"
+    type: "object"
+    format: "yaml"
+    description: "Comprehensive feasibility assessment"
+    schema:
+      type: "object"
+      properties:
+        technical_feasibility:
+          type: "object"
+        resource_estimate:
+          type: "object"
+        risks:
+          type: "array"
+        recommendation:
+          type: "string"
+          enum: ["Go", "No-Go", "Conditional"]
+
+triggers:
+  events:
+    - "requirements.completed"
+  manual: true
+
+dependencies:
+  agents:
+    - id: "ideation-requirements-analyst-v1.0.0"
+
+constraints:
+  timeout: "120s"
+
+examples:
+  - name: "Assess OAuth2 integration feasibility"
+    input:
+      requirements:
+        functional:
+          - title: "OAuth2 Login"
+            complexity: "Medium"
+      constraints:
+        timeline: "2 weeks"
+        team_size: 2
+    expected_output:
+      feasibility_report:
+        technical_feasibility:
+          score: 0.85
+          assessment: "Feasible with existing libraries"
+        resource_estimate:
+          time: "8-10 days"
+          complexity: "Medium"
+        recommendation: "Go"

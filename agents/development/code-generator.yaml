@@ -1,0 +1,173 @@
+# Code Generator Agent
+# Multi-language code generation following best practices
+
+agent:
+  id: "development-code-generator-v1.0.0"
+  name: "Code Generator"
+  domain: "development"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["codegen", "development", "implementation"]
+
+purpose: |
+  Generates production-ready code across multiple languages:
+  - Language-aware generation (Python, TypeScript, Rust, Go, Java)
+  - Pattern implementation (Repository, Service, Controller, etc.)
+  - Test generation alongside code (TDD support)
+  - Documentation generation (docstrings, JSDoc, etc.)
+  - Security-conscious defaults
+  - Follows language-specific best practices and style guides
+
+capabilities:
+  - "Generate code in Python, TypeScript, Rust, Go, Java"
+  - "Implement design patterns (Repository, Factory, Strategy, etc.)"
+  - "Generate unit tests alongside implementation"
+  - "Create comprehensive inline documentation"
+  - "Apply security best practices (input validation, SQL injection prevention)"
+  - "Follow language-specific conventions and idioms"
+  - "Generate boilerplate and scaffolding"
+  - "Refactor existing code following patterns"
+
+inputs:
+  - name: "specification"
+    type: "object"
+    format: "yaml"
+    required: true
+    description: "Code generation specification"
+    schema:
+      type: "object"
+      properties:
+        language:
+          type: "string"
+          enum: ["python", "typescript", "rust", "go", "java"]
+        component_type:
+          type: "string"
+        functionality:
+          type: "string"
+        patterns:
+          type: "array"
+
+  - name: "language"
+    type: "string"
+    format: "text"
+    required: true
+    description: "Target programming language"
+
+  - name: "include_tests"
+    type: "boolean"
+    format: "json"
+    required: false
+    default: true
+    description: "Generate tests alongside code"
+
+outputs:
+  - name: "code_files"
+    type: "array"
+    format: "json"
+    description: "Generated code files"
+    schema:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          path:
+            type: "string"
+          content:
+            type: "string"
+          language:
+            type: "string"
+
+  - name: "test_files"
+    type: "array"
+    format: "json"
+    description: "Generated test files"
+
+triggers:
+  events:
+    - "task.assigned"
+  manual: true
+
+dependencies:
+  tools:
+    - name: "filesystem"
+      operations:
+        - "write_file"
+    - name: "github"
+      operations:
+        - "create_branch"
+        - "push_files"
+
+constraints:
+  timeout: "120s"
+  resources:
+    memory_mb: 2048
+
+configuration:
+  settings:
+    test_framework:
+      python: "pytest"
+      typescript: "jest"
+      rust: "cargo test"
+      go: "go test"
+  user_preferences:
+    - "code_style"
+    - "verbosity"
+
+examples:
+  - name: "Generate Python repository pattern"
+    input:
+      specification:
+        language: "python"
+        component_type: "repository"
+        functionality: "User CRUD operations"
+        patterns: ["Repository", "Dependency Injection"]
+      language: "python"
+      include_tests: true
+    expected_output:
+      code_files:
+        - path: "src/repositories/user_repository.py"
+          content: |
+            from typing import Optional
+            from src.models.user import User
+            
+            class UserRepository:
+                """Repository for User entity operations."""
+                
+                def __init__(self, db_session):
+                    self.db = db_session
+                
+                def get_by_id(self, user_id: int) -> Optional[User]:
+                    """Retrieve user by ID."""
+                    return self.db.query(User).filter_by(id=user_id).first()
+          language: "python"
+      test_files:
+        - path: "tests/test_user_repository.py"
+          content: |
+            import pytest
+            from src.repositories.user_repository import UserRepository
+            
+            def test_get_by_id(mock_db):
+                repo = UserRepository(mock_db)
+                user = repo.get_by_id(1)
+                assert user is not None
+
+  - name: "Generate TypeScript service class"
+    input:
+      specification:
+        language: "typescript"
+        component_type: "service"
+        functionality: "Authentication service"
+      language: "typescript"
+    expected_output:
+      code_files:
+        - path: "src/services/auth.service.ts"
+          content: |
+            export class AuthService {
+              constructor(private userRepo: UserRepository) {}
+              
+              async login(email: string, password: string): Promise<User> {
+                // Implementation
+              }
+            }

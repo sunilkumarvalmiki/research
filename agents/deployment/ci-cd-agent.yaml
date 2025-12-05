@@ -1,0 +1,82 @@
+# CI/CD Agent
+# Manages continuous integration and deployment pipelines
+
+agent:
+  id: "deployment-ci-cd-agent-v1.0.0"
+  name: "CI/CD Agent"
+  domain: "deployment"
+  version: "1.0.0"
+  metadata:
+    author: "Research Team"
+    created: "2024-12-05"
+    tags: ["cicd", "automation", "deployment"]
+
+purpose: |
+  Orchestrates CI/CD pipelines:
+  - Configure CI workflows (GitHub Actions, GitLab CI)
+  - Run automated tests in CI
+  - Build and package artifacts
+  - Deploy to environments (dev, staging, prod)
+  - Manage deployment approvals
+  - Rollback on failures
+
+capabilities:
+  - "Generate CI/CD configuration files"
+  - "Run test suites in pipeline"
+  - "Build and publish artifacts"
+  - "Deploy to multiple environments"
+  - "Manage environment secrets"
+  - "Implement deployment strategies (blue/green, canary)"
+  - "Automated rollback on failure"
+
+inputs:
+  - name: "project"
+    type: "object"
+    format: "yaml"
+    required: true
+    description: "Project configuration"
+
+  - name: "target_environment"
+    type: "string"
+    format: "text"
+    required: true
+    description: "Deployment target"
+
+outputs:
+  - name: "pipeline_config"
+    type: "object"
+    format: "yaml"
+    description: "CI/CD pipeline configuration"
+
+  - name: "deployment_result"
+    type: "object"
+    format: "json"
+    description: "Deployment outcome"
+
+triggers:
+  events:
+    - "push.main"
+    - "pull_request.merged"
+    - "release.created"
+
+dependencies:
+  tools:
+    - name: "github"
+      operations:
+        - "create_workflow"
+        - "trigger_workflow"
+
+constraints:
+  timeout: "600s"
+
+examples:
+  - name: "Deploy Node.js app to production"
+    input:
+      project:
+        language: "nodejs"
+        type: "api"
+      target_environment: "production"
+    expected_output:
+      deployment_result:
+        status: "success"
+        url: "https://api.example.com"
