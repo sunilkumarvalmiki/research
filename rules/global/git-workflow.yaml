@@ -1,0 +1,445 @@
+# Git Workflow Rules
+# Version: 1.0.0
+
+git_workflow:
+  version: "1.0.0"
+  
+  # Branch naming and structure
+  branching:
+    # Main branches
+    main: "main"
+    description: "Production-ready code"
+    protection:
+      - "Require pull request reviews"
+      - "Require status checks to pass"
+      - "No direct commits"
+      - "No force push"
+    
+    develop: "develop"
+    description: "Integration branch for features (optional, for GitFlow)"
+    protection:
+      - "Require pull request reviews"
+      - "Require status checks to pass"
+    
+    # Feature branches
+    feature: "feature/{ticket}-{description}"
+    examples:
+      - "feature/GH-123-add-oauth"
+      - "feature/user-dashboard"
+    rules:
+      - "Branch from: main or develop"
+      - "Merge back to: main or develop"
+      - "Naming: lowercase with hyphens"
+    
+    # Bug fix branches
+    bugfix: "fix/{ticket}-{description}"
+    examples:
+      - "fix/GH-456-login-error"
+      - "fix/memory-leak"
+    rules:
+      - "Branch from: main or develop"
+      - "Merge back to: main or develop"
+    
+    # Hotfix branches (urgent production fixes)
+    hotfix: "hotfix/{ticket}-{description}"
+    examples:
+      - "hotfix/GH-789-security-patch"
+    rules:
+      - "Branch from: main"
+      - "Merge back to: main AND develop"
+      - "Must be deployed ASAP"
+    
+    # Release branches (for release preparation)
+    release: "release/v{version}"
+    examples:
+      - "release/v1.2.0"
+    rules:
+      - "Branch from: develop"
+      - "Merge back to: main AND develop"
+      - "Only bug fixes and release prep"
+    
+    # Branch lifecycle
+    lifecycle:
+      - "Create from up-to-date base branch"
+      - "Keep up-to-date with base (rebase or merge)"
+      - "Delete after merging"
+      - "Stale branches (30 days) flagged for cleanup"
+
+  # Commit message format (Conventional Commits)
+  commits:
+    # Format specification
+    format: "conventional"
+    template: "<type>(<scope>): <subject>"
+    
+    # Commit types
+    types:
+      - type: "feat"
+        description: "New feature"
+        example: "feat(auth): add OAuth2 login"
+      
+      - type: "fix"
+        description: "Bug fix"
+        example: "fix(api): handle null response"
+      
+      - type: "docs"
+        description: "Documentation only"
+        example: "docs(readme): update installation steps"
+      
+      - type: "style"
+        description: "Formatting, no code change"
+        example: "style: fix indentation"
+      
+      - type: "refactor"
+        description: "Code change without fixing bugs or adding features"
+        example: "refactor(db): simplify query logic"
+      
+      - type: "perf"
+        description: "Performance improvement"
+        example: "perf(api): cache user queries"
+      
+      - type: "test"
+        description: "Adding or updating tests"
+        example: "test(auth): add login flow tests"
+      
+      - type: "chore"
+        description: "Maintenance tasks"
+        example: "chore: update dependencies"
+      
+      - type: "ci"
+        description: "CI/CD changes"
+        example: "ci: add automated deploy"
+      
+      - type: "build"
+        description: "Build system changes"
+        example: "build: update webpack config"
+      
+      - type: "revert"
+        description: "Revert previous commit"
+        example: "revert: revert feat(auth): add OAuth2"
+    
+    # Scope (optional but recommended)
+    scope: optional
+    examples:
+      - "api"
+      - "auth"
+      - "db"
+      - "ui"
+      - "docs"
+    
+    # Subject line
+    subject:
+      max_length: 50
+      style: "imperative mood (add, not added)"
+      capitalization: "lowercase"
+      punctuation: "no period at end"
+    
+    # Body (optional)
+    body:
+      max_line_length: 72
+      content:
+        - "Explain what and why, not how"
+        - "Reference issues/tickets"
+        - "Break into paragraphs if needed"
+    
+    # Footer (optional)
+    footer:
+      breaking_changes: "BREAKING CHANGE: description"
+      issue_references: "Fixes #123, Closes #456"
+      co_authors: "Co-authored-by: name <email>"
+    
+    # Commit signing
+    sign: recommended
+    gpg_key: "Use GPG or SSH key"
+    verification: "Enable on GitHub"
+    
+    # Commit frequency
+    frequency:
+      guideline: "Small, focused commits"
+      - "One logical change per commit"
+      - "Commit when tests pass"
+      - "Commit before context switch"
+
+  # Pull request (PR) workflow
+  pull_requests:
+    # PR template
+    template: required
+    sections:
+      - "Description of changes"
+      - "Related issue/ticket"
+      - "Type of change (feature, fix, etc.)"
+      - "Testing performed"
+      - "Checklist (tests, docs, etc.)"
+    
+    # PR title
+    title:
+      format: "Same as commit convention"
+      example: "feat(auth): add OAuth2 login"
+    
+    # PR description
+    description:
+      required: true
+      min_length: 50
+      should_include:
+        - "What changed and why"
+        - "How to test"
+        - "Screenshots (if UI changes)"
+        - "Breaking changes (if any)"
+    
+    # PR size guidelines
+    size:
+      preferred: "< 400 lines changed"
+      max_recommended: "< 1000 lines"
+      rationale: "Large PRs are hard to review"
+      exceptions:
+        - "Generated code"
+        - "Dependency updates"
+        - "Mass refactoring (with approval)"
+    
+    # Review requirements
+    reviews_min: 1
+    reviews_recommended: 2
+    approval_required: true
+    
+    # Review guidelines
+    review_checklist:
+      - "Code follows style guide"
+      - "Tests included and passing"
+      - "Documentation updated"
+      - "No security vulnerabilities"
+      - "Performance acceptable"
+      - "Breaking changes documented"
+    
+    # CI requirements
+    ci_required: true
+    required_checks:
+      - "Tests pass"
+      - "Linting passes"
+      - "Build succeeds"
+      - "Security scan passes"
+    
+    # Labels
+    labels:
+      required: true
+      categories:
+        - "Type: feature, bug, docs, refactor"
+        - "Priority: critical, high, medium, low"
+        - "Status: in-progress, ready-for-review, blocked"
+      
+    # Draft PRs
+    draft:
+      use_for: "Work in progress"
+      rules:
+        - "Cannot be merged while draft"
+        - "Use for early feedback"
+        - "Convert to ready when complete"
+    
+    # Merge strategy
+    merge_strategy: "squash"
+    alternatives:
+      - "merge: keep all commits (for feature branches)"
+      - "rebase: linear history"
+    squash_message:
+      - "Use PR title as commit message"
+      - "Include PR number"
+      - "Summarize changes in body"
+    
+    # After merge
+    post_merge:
+      - "Delete source branch"
+      - "Close related issues"
+      - "Update project board"
+      - "Notify team (if significant)"
+
+  # Merge conflicts
+  conflicts:
+    prevention:
+      - "Keep feature branches short-lived"
+      - "Regularly sync with base branch"
+      - "Coordinate on shared files"
+    
+    resolution:
+      strategy: "Understand both changes"
+      steps:
+        - "Update local base branch"
+        - "Merge/rebase base into feature"
+        - "Resolve conflicts carefully"
+        - "Test after resolution"
+        - "Get re-approval if significant"
+      
+      never:
+        - "Blindly accept all changes"
+        - "Delete code without understanding"
+        - "Merge without testing"
+
+  # Tags and releases
+  tags:
+    # Semantic versioning
+    format: "v{MAJOR}.{MINOR}.{PATCH}"
+    examples:
+      - "v1.0.0"
+      - "v1.2.3"
+      - "v2.0.0-beta.1"
+    
+    # Version bumps
+    version_bump:
+      major: "Breaking changes"
+      minor: "New features (backward compatible)"
+      patch: "Bug fixes"
+      prerelease: "Alpha, beta, rc"
+    
+    # Tag creation
+    creation:
+      - "Tag main branch only"
+      - "Annotated tags (with message)"
+      - "Sign tags (GPG)"
+      - "Include changelog in tag message"
+    
+    # Release process
+    release:
+      - "Create tag"
+      - "Generate release notes"
+      - "Build and publish artifacts"
+      - "Update documentation"
+      - "Announce release"
+
+  # Git hygiene
+  hygiene:
+    # What NOT to commit
+    never_commit:
+      - "Secrets or credentials"
+      - "Binary files (use Git LFS)"
+      - "Generated files (build artifacts)"
+      - "IDE-specific files (.idea, .vscode)"
+      - "OS-specific files (.DS_Store)"
+      - "node_modules, venv, target"
+      - "Large files (> 50MB)"
+    
+    # .gitignore
+    gitignore:
+      required: true
+      should_include:
+        - "Build artifacts"
+        - "Dependencies"
+        - "IDE files"
+        - "OS files"
+        - "Environment files (.env)"
+        - "Test coverage reports"
+    
+    # Git history
+    history:
+      rewriting:
+        allowed: "On feature branches only"
+        never: "On main or shared branches"
+        when: "To clean up before PR"
+      
+      force_push:
+        allowed: "Feature branches (with caution)"
+        never: "Main or develop branches"
+        communication: "Notify team before force pushing shared branch"
+
+  # Hotfix procedure
+  hotfix_process:
+    urgency: "Critical bugs in production"
+    
+    steps:
+      - "Create hotfix branch from main"
+      - "Fix issue with minimal changes"
+      - "Test thoroughly"
+      - "Fast-track review (but still review!)"
+      - "Merge to main"
+      - "Tag new version"
+      - "Deploy immediately"
+      - "Merge back to develop"
+      - "Create post-mortem if needed"
+    
+    requirements:
+      - "Must include tests"
+      - "Must update changelog"
+      - "Must notify team"
+
+  # Collaboration guidelines
+  collaboration:
+    # Communication
+    communication:
+      - "Reference issues in commits"
+      - "Comment on PRs for questions"
+      - "Request reviews from relevant people"
+      - "Respond to review comments promptly"
+    
+    # Code ownership
+    ownership:
+      - "Use CODEOWNERS file"
+      - "Require owner approval for critical paths"
+      - "Distribute knowledge, avoid silos"
+    
+    # Pair programming
+    pair_programming:
+      commits: "Co-authored-by in commit message"
+      benefits: "Knowledge sharing, fewer bugs"
+
+  # Enforcement
+  enforcement:
+    # Pre-commit hooks
+    pre_commit:
+      - "Linting"
+      - "Format checking"
+      - "Secret scanning"
+      - "Conventional commit validation"
+    
+    # Pre-push hooks
+    pre_push:
+      - "Run tests"
+      - "Check branch naming"
+    
+    # CI checks
+    ci:
+      - "All tests pass"
+      - "Code coverage threshold met"
+      - "No linting errors"
+      - "Security scan passes"
+    
+    # Branch protection
+    branch_protection:
+      main:
+        - "Require PR reviews (1+ approvals)"
+        - "Require status checks"
+        - "No direct commits"
+        - "No force push"
+        - "No deletion"
+
+# Examples
+examples:
+  commit_messages:
+    good:
+      - "feat(auth): add OAuth2 Google login"
+      - "fix(api): handle null user response"
+      - "docs: update README with new features"
+      - "refactor(db): extract query builder"
+    
+    bad:
+      - "update stuff"  # Too vague
+      - "Fix bug"  # Not specific enough
+      - "asdfasdf"  # Not descriptive
+      - "WIP"  # Use draft PR instead
+  
+  pr_titles:
+    good:
+      - "feat: add user dashboard"
+      - "fix: resolve memory leak in cache"
+      - "docs: improve API documentation"
+    
+    bad:
+      - "Update code"  # Not specific
+      - "PR #123"  # Not descriptive
+      - "Various changes"  # Too vague
+  
+  branch_names:
+    good:
+      - "feature/GH-123-user-dashboard"
+      - "fix/login-redirect-bug"
+      - "hotfix/security-patch"
+    
+    bad:
+      - "my-branch"  # Not descriptive
+      - "test"  # Too generic
+      - "fix_bug"  # Underscores instead of hyphens

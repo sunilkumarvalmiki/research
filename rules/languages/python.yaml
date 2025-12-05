@@ -1,0 +1,327 @@
+# Python Development Rules
+# Version: 1.0.0
+
+python:
+  version: "1.0.0"
+  python_version: ">=3.11"
+  
+  # Tooling
+  tooling:
+    # Code formatter
+    formatter: "ruff format"
+    alternatives:
+      - "black"
+    
+    # Linter
+    linter: "ruff check"
+    alternatives:
+      - "flake8"
+      - "pylint"
+    
+    # Type checker
+    type_checker: "mypy --strict"
+    configuration:
+      - "Enable strict mode"
+      - "No implicit optional"
+      - "Warn on unused ignores"
+    
+    # Test framework
+    test_framework: "pytest"
+    plugins:
+      - "pytest-cov (coverage)"
+      - "pytest-mock (mocking)"
+      - "pytest-asyncio (async tests)"
+    
+    # Package manager
+    package_manager: "uv"
+    alternatives:
+      - "pip"
+      - "poetry"
+      - "pdm"
+    
+    # Virtual environment
+    venv: "uv venv or python -m venv"
+
+  # Project structure
+  structure:
+    # Layout
+    layout: "src"
+    example: |
+      project/
+      ├── src/
+      │   └── package_name/
+      │       ├── __init__.py
+      │       ├── module.py
+      │       └── subpackage/
+      ├── tests/
+      │   ├── __init__.py
+      │   └── test_module.py
+      ├── docs/
+      ├── pyproject.toml
+      ├── README.md
+      ├── .gitignore
+      └── LICENSE
+    
+    # Required files
+    required_files:
+      - "pyproject.toml"
+      - "README.md"
+      - ".gitignore"
+      - "LICENSE"
+    
+    # pyproject.toml
+    pyproject_sections:
+      - "project metadata"
+      - "dependencies"
+      - "optional-dependencies (dev, test)"
+      - "tool.ruff configuration"
+      - "tool.mypy configuration"
+      - "tool.pytest configuration"
+
+  # Code style
+  style:
+    # PEP 8 compliance
+    pep8: required
+    
+    # Line length
+    line_length: 100
+    
+    # Indentation
+    indentation: 4
+    
+    # Quotes
+    quotes: "double"
+    
+    # Import ordering (isort/ruff)
+    imports:
+      order:
+        - "future"
+        - "standard library"
+        - "third party"
+        - "first party"
+        - "local"
+      group_by_package: true
+      sort_within_group: true
+    
+    # Blank lines
+    blank_lines:
+      top_level_definitions: 2
+      method_definitions: 1
+      logical_sections: 1
+    
+    # Naming conventions
+    naming:
+      modules: "snake_case"
+      classes: "PascalCase"
+      functions: "snake_case"
+      variables: "snake_case"
+      constants: "SCREAMING_SNAKE_CASE"
+      private: "_prefix"
+      protected: "_prefix"
+      dunder: "__prefix__"
+
+  # Type hints
+  type_hints:
+    required: true
+    coverage_target: "100%"
+    
+    # Type hint style
+    style:
+      - "Use typing module types"
+      - "Use | for unions (Python 3.10+)"
+      - "Use list[T] instead of List[T] (Python 3.9+)"
+      - "Use dict[K, V] instead of Dict[K, V]"
+    
+    # Examples
+    examples:
+      function: |
+        def greet(name: str, age: int | None = None) -> str:
+            return f"Hello, {name}"
+      
+      class: |
+        class User:
+            def __init__(self, id: int, email: str) -> None:
+                self.id = id
+                self.email = email
+
+  # Documentation
+  documentation:
+    # Docstring style
+    docstring_style: "Google"
+    alternatives:
+      - "NumPy"
+      - "reStructuredText"
+    
+    # Required documentation
+    required_for:
+      - "Public modules"
+      - "Public classes"
+      - "Public functions"
+      - "Public methods"
+    
+    # Docstring example
+    example: |
+      def calculate_total(items: list[float], tax_rate: float = 0.1) -> float:
+          """Calculate total price including tax.
+          
+          Args:
+              items: List of item prices
+              tax_rate: Tax rate as decimal (default 0.1 for 10%)
+          
+          Returns:
+              Total price including tax
+          
+          Raises:
+              ValueError: If tax_rate is negative
+          
+          Examples:
+              >>> calculate_total([10.0, 20.0], 0.1)
+              33.0
+          """
+          if tax_rate < 0:
+              raise ValueError("Tax rate cannot be negative")
+          subtotal = sum(items)
+          return subtotal * (1 + tax_rate)
+
+  # Testing
+  testing:
+    # Coverage target
+    coverage_min: 80
+    coverage_target: 90
+    
+    # Test discovery
+    discovery:
+      pattern: "test_*.py or *_test.py"
+      directory: "tests/"
+    
+    # Test markers
+    markers:
+      unit: "Unit tests"
+      integration: "Integration tests"
+      slow: "Slow tests (> 1s)"
+      asyncio: "Async tests"
+    
+    # Fixtures
+    fixtures:
+      - "conftest.py for shared fixtures"
+      - "Use pytest fixtures over setUp/tearDown"
+    
+    # Mocking
+    mocking:
+      library: "unittest.mock or pytest-mock"
+      prefer: "Dependency injection over patching"
+
+  # Error handling
+  error_handling:
+    # Exception hierarchy
+    custom_exceptions: recommended
+    
+    # Best practices
+    practices:
+      - "Catch specific exceptions"
+      - "Use finally for cleanup"
+      - "Don't use bare except"
+      - "Raise from for exception chaining"
+    
+    # Example
+    example: |
+      class UserNotFoundError(Exception):
+          """Raised when user cannot be found."""
+          pass
+      
+      def get_user(user_id: int) -> User:
+          try:
+              return fetch_user(user_id)
+          except DatabaseError as e:
+              raise UserNotFoundError(f"User {user_id} not found") from e
+
+  # Modern Python features
+  modern_features:
+    python_3_10:
+      - "Structural pattern matching (match/case)"
+      - "Union types with |"
+      - "TypeAlias"
+    
+    python_3_11:
+      - "Exception groups"
+      - "Self type"
+      - "LiteralString"
+    
+    python_3_12:
+      - "Type parameter syntax"
+      - "Override decorator"
+
+  # Performance
+  performance:
+    # Profiling
+    profiling:
+      tools:
+        - "cProfile for CPU"
+        - "memory_profiler for memory"
+        - "py-spy for production"
+    
+    # Optimization tips
+    tips:
+      - "Use list comprehensions over loops"
+      - "Use generators for large datasets"
+      - "Use sets for membership testing"
+      - "Use __slots__ for memory optimization"
+      - "Profile before optimizing"
+
+  # Security
+  security:
+    # Security linting
+    linter: "bandit"
+    
+    # Common issues
+    checks:
+      - "No eval() or exec()"
+      - "No pickle for untrusted data"
+      - "Use secrets module for random"
+      - "Validate user input"
+      - "Use parameterized SQL queries"
+
+  # Dependencies
+  dependencies:
+    # Management
+    specification: "pyproject.toml"
+    lockfile: "uv.lock or requirements.txt"
+    
+    # Development dependencies
+    dev_dependencies:
+      - "ruff"
+      - "mypy"
+      - "pytest"
+      - "pytest-cov"
+    
+    # Version pinning
+    pinning:
+      production: "Exact versions"
+      library: "Version ranges"
+
+  # CI/CD
+  ci_cd:
+    # GitHub Actions example
+    checks:
+      - "ruff check"
+      - "ruff format --check"
+      - "mypy"
+      - "pytest --cov"
+    
+    # Python versions to test
+    test_versions:
+      - "3.11"
+      - "3.12"
+
+# Best practices
+best_practices:
+  - "Use type hints everywhere"
+  - "Write docstrings for public APIs"
+  - "Keep functions small and focused"
+  - "Use dataclasses for data containers"
+  - "Use enums for constants"
+  - "Use context managers (with statements)"
+  - "Use pathlib for file paths"
+  - "Use f-strings for formatting"
+  - "Use asyncio for I/O-bound tasks"
+  - "Follow PEP 8 style guide"
