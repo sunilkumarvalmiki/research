@@ -79,5 +79,8 @@
     "**/.hg/store/**": true,
     "**/venv/**": true,
     "**/__pycache__/**": true
-  }
+  },
+  "containers.containers.groupBy": "Compose Project Name",
+  "python-envs.defaultEnvManager": "ms-python.python:pyenv",
+  "python-envs.pythonProjects": []
 }
